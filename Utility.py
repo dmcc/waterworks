@@ -76,6 +76,32 @@ def dict_subset(d, dkeys, default=0):
 # files #
 #########
 
+def is_filelike(obj, modes_needed='rw'):
+    """Returns whether obj has some of the necessary methods for a
+    file object.  modes_needed is a string of modes to check for ('r',
+    'w', or 'rw')."""
+    try:
+        if 'r' in modes_needed:
+            obj.read
+        if 'w' in modes_needed:
+            obj.write
+            obj.flush
+            obj.close
+    except AttributeError:
+        return False
+    else:
+        return True
+
+def open_file_or_filename(obj, mode='r'):
+    """obj can be a file-like object or a string of a filename.  Returns a
+    file or file-like object associated with obj."""
+    if is_filelike(obj, modes_needed=mode):
+        return obj
+    elif isinstance(obj, basestring):
+        return file(obj, mode)
+    else:
+        raise TypeError("Can't make a file out of %r." % obj)
+
 def sortedfile(filename, mode='r', sortcmd='sort -n'):
     """Returns a file-like object which contains a sorted version of
     filename.  Note that the file-like object returned is a 
@@ -123,6 +149,15 @@ def read_file_with_timeout(fileobject, timeout=1):
     result = fileobject.read()
     signal.alarm(0) # Disable the alarm
     return result
+
+def linecountinfile(file_or_filename):
+    """Count the lines in a file, requires us to read the entire file."""
+    f = open_file_or_filename(file_or_filename)
+    numlines = 0
+    for line in f:
+        numlines += 1
+    f.close()
+    return numlines
 
 def mkdirparents(path):
     """Python version of the shell command "mkdir -p".  Won't raise an
@@ -376,7 +411,6 @@ def trace(func, stream=sys.stdout):
     TODO: print out default keywords (maybe)"""
     name = func.func_name
     global _count
-    _count = 0
     def tracer(*args, **kw):
         global _count
         s = ('\t' * _count) + '|>> %s called with' % name
