@@ -19,7 +19,7 @@ def guesslogbuckets(minval, maxval, numbuckets=10, startbase=30, step=0.2):
         if len(buckets) >= numbuckets:
             break
         base -= step
-
+    
     return [int(b) for b in buckets]
 
 def guesslogbucketsfromdata(data, numbuckets=None):
@@ -79,6 +79,7 @@ class HistogramBucketDict(IterableUserDict):
     def __init__(self, cutoffs, data=None):
         """Create a HistogramBucketDict with cutoff points for buckets."""
         IterableUserDict.__init__(self)
+        cutoffs = cutoffs[:]
         cutoffs.reverse()
         self.cutoffs = cutoffs
         self.firstcutoff = cutoffs[0]
