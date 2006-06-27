@@ -45,7 +45,7 @@ class ExitCode(Exception):
                                          self.exitcode, 
                                          self.message)
     def __str__(self):
-        return "%s%s (exit code %s)" % \
+        return "%s%s (exit status %s)" % \
                (self.message, 
                 ', '.join(describe_exit_status(self.exitcode)),
                 self.exitcode)
