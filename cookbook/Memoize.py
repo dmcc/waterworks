@@ -22,3 +22,10 @@ class Memoize:
         if not self.memo.has_key(args):
             self.memo[args] = self.fn(*args)
         return self.memo[args]
+    def clear(self):
+        """Forget all memoized results."""
+        self.memo.clear()
+
+import types
+def cachedmethod(function):
+    return types.MethodType(Memoize(function), None)
