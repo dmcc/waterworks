@@ -1,7 +1,7 @@
 from sets import Set
 import sys
 
-def dict_to_table(d, headers=True, x_header=''):
+def dict_to_table(d, headers=True, x_header='', reverse=False):
     """Convert dict with (x, y) as keys to a 2D table."""
     all_x = Set()
     all_y = Set()
@@ -12,6 +12,11 @@ def dict_to_table(d, headers=True, x_header=''):
     all_y = list(all_y)
     all_x.sort()
     all_y.sort()
+    if reverse:
+        if 'x' in reverse:
+            all_x.reverse()
+        if 'y' in reverse:
+            all_y.reverse()
 
     if headers:
         table = [[x_header] + all_y]
