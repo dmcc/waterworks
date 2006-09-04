@@ -32,16 +32,17 @@ def dict_to_table(d, headers=True, x_header='', reverse=False):
     return table
 
 def format_table(table, format='csv', outputstream=sys.stdout):
-    if format == 'csv':
+    if format in ('csv', 'tsv'):
         import csv
-        writer = csv.writer(outputstream)
+        dialect = {'csv' : csv.excel, 'tsv' : csv.excel_tab}[format]
+        writer = csv.writer(outputstream, dialect=dialect)
         for row in table:
             writer.writerow(row)
     elif format == 'tex':
         import TeXTable
         print >>outputstream, TeXTable.texify(table, has_header=True)
     else:
-        raise ValueError("Sorry, only 'csv' and 'tex' formats are supported now.")
+        raise ValueError("Sorry, only 'csv', 'tsv', and 'tex' formats are supported now.")
 
 if __name__ == "__main__":
     print dict_to_table({('add-0', '01') : 7,
