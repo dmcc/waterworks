@@ -96,3 +96,38 @@ def batch(iterable, batchsize=2):
             current = []
     if current:
         yield current
+
+# written by dmcc -- not in the real iterextras
+import operator
+def iunzip(iterable, n=None):
+    """Takes an iterator that yields n-tuples and returns n iterators
+    which index those tuples.  This function is the reverse of izip().
+    n is the length of the n-tuple and will be autodetected if not
+    specified.  If the iterable contains tuples of differing sizes,
+    the behavior is undefined."""
+    # a braindead implementation for now (since it relies on tee() which is
+    # braindead in this module (but not in Python 2.4+))
+    iterable = iter(iterable) # ensure we're dealing with an iterable
+    if n is None: # check the first element for length
+        first = iterable.next()
+        n = len(first)
+        # now put it back in to iterable is unchanged
+        iterable = chain([first], iterable)
+
+    iter_tees = tee(iterable, n)
+    selector = lambda index: lambda item: operator.getitem(item, index)
+    return [imap(selector(index), iter_tee) 
+        for index, iter_tee in izip(count(), iter_tees)]
+
+if __name__ == "__main__":
+    test = zip(range(1, 10), range(21, 30), range(81, 90))
+    print test
+    a, b, c = iunzip(test)
+    al = list(a)
+    bl = list(b)
+    cl = list(c)
+    print al
+    print bl
+    print cl
+    recombined = zip(al, bl, cl)
+    assert recombined == test
