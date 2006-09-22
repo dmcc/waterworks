@@ -30,6 +30,8 @@ def uniformbuckets(minval, maxval, numbuckets=10):
     """Make numbuckets bucket cutoffs, each of the same size between
     minval and maxval."""
     diff = maxval - minval
+    if numbuckets > diff:
+        numbuckets = diff
     size = int(diff / numbuckets)
     return range(int(minval), int(maxval), size)
 
@@ -152,7 +154,7 @@ class HistogramBucketDict(IterableUserDict):
             for k, v in items])
         return s
 
-def gnuplot_histograms(histograms, names, scale='uniform'):
+def gnuplot_histograms(histograms, names, scale='uniform', graph_with='boxes'):
     gnuplot_commands = NamedTemporaryFile(mode='w')
     plotfiles = []
     for histogram in histograms:
@@ -160,8 +162,9 @@ def gnuplot_histograms(histograms, names, scale='uniform'):
     if scale == 'log':
         gnuplot_commands.write('set log y\n')
     gnuplot_commands.write('plot ')
-    gnuplot_commands.write(', '.join(["'%s' title '%s' with boxes" % \
-        (plotfile.name, name) for plotfile, name in zip(plotfiles, names)]))
+    gnuplot_commands.write(', '.join(["'%s' title '%s' with %s" % \
+        (plotfile.name, name, graph_with) 
+            for plotfile, name in zip(plotfiles, names)]))
     gnuplot_commands.write('\npause mouse\n')
 
     gnuplot_commands.flush()
