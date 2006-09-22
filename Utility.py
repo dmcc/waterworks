@@ -1,7 +1,11 @@
 from __future__ import nested_scopes
-import os, sys, weakref
+import os, sys, pipes
 from gzip import GzipFile
-from bz2 import BZ2File
+
+# TODO remove this when people update their references
+from IntShelve import IntShelve
+
+from waterworks.Files import *
 
 ###################
 # parsing helpers #
@@ -38,6 +42,21 @@ def try_parse_date(val, default=None):
     except:
         return default
 
+def multisplit(string_to_split, delimiters):
+    """Example:
+
+    >>> print multisplit('hello there, how are you?', delimiters=',')
+    ['hello there', ' how are you?']
+    >>> print multisplit('hello there, how are you?', delimiters=', ')
+    ['hello', 'there', 'how', 'are', 'you?']
+    """
+    import re
+    splitter_re = re.compile('|'.join(["(?:%s)" % delimiter 
+        for delimiter in delimiters]))
+    splitted = splitter_re.split(string_to_split)
+    return [splittee for splittee in splitted 
+        if splittee and splittee not in delimiters]
+
 ###########################
 # dictionary manipulation #
 ###########################
@@ -72,110 +91,12 @@ def dict_subset(d, dkeys, default=0):
         newd[k] = d.get(k, default)
     return newd
 
-#########
-# files #
-#########
-
-def is_filelike(obj, modes_needed='rw'):
-    """Returns whether obj has some of the necessary methods for a
-    file object.  modes_needed is a string of modes to check for ('r',
-    'w', or 'rw')."""
-    try:
-        if 'r' in modes_needed:
-            obj.read
-        if 'w' in modes_needed:
-            obj.write
-            obj.flush
-            obj.close
-    except AttributeError:
-        return False
-    else:
-        return True
-
-def open_file_or_filename(obj, mode='r'):
-    """obj can be a file-like object or a string of a filename.  Returns a
-    file or file-like object associated with obj."""
-    if is_filelike(obj, modes_needed=mode):
-        return obj
-    elif isinstance(obj, basestring):
-        return file(obj, mode)
-    else:
-        raise TypeError("Can't make a file out of %r." % obj)
-
-def sortedfile(filename, mode='r', sortcmd='sort -n'):
-    """Returns a file-like object which contains a sorted version of
-    filename.  Note that the file-like object returned is a 
-    NamedTemporaryFile and will be deleted when it goes out of scope."""
-    import pipes, tempfile
-    tf = tempfile.NamedTemporaryFile()
-
-    t = pipes.Template()
-    t.append(sortcmd, '--')
-    t.copy(filename, tf.name)
-
-    return tf
-
-# TODO: write mode is broken when the file doesn't exist yet
-def possibly_compressed_file(filename, mode='r'):
-    # normalize the filename
-    filename = filename.replace('.gz', '')
-    filename = filename.replace('.bz2', '')
-    gzip_name = "%s.gz" % filename
-    bzip_name = "%s.bz2" % filename
-    if os.path.exists(filename):
-        return file(filename, mode)
-    elif os.path.exists(gzip_name): # try adding .gz and using GzipFile
-        return GzipFile(gzip_name, mode)
-    elif os.path.exists(bzip_name): # try adding .bz2 and using BZ2File
-        return BZ2File(bzip_name, mode)
-    else:
-        raise IOError("Can't find file (or compressed version): '%s'" % \
-            filename)
-
-def read_file_with_timeout(fileobject, timeout=1):
-    """Given a fileobject, we try to read from it.  If it takes longer than
-    timeout to read, we raise an IOError."""
-    # this is taken from the examples in the documentation for the
-    # signal module
-    import signal
-
-    def handler(signum, frame):
-        raise IOError, "Couldn't read from file object within %s seconds" % \
-            timeout
-
-    # Set the signal handler and an alarm to go off
-    signal.signal(signal.SIGALRM, handler)
-    signal.alarm(timeout)
-    result = fileobject.read()
-    signal.alarm(0) # Disable the alarm
-    return result
-
-def linecountinfile(file_or_filename):
-    """Count the lines in a file, requires us to read the entire file."""
-    f = open_file_or_filename(file_or_filename)
-    numlines = 0
-    for line in f:
-        numlines += 1
-    f.close()
-    return numlines
-
-def mkdirparents(path):
-    """Python version of the shell command "mkdir -p".  Won't raise an
-    exception if the path already exists.  os.makedirs() will raise an
-    exception (this may be a bug)."""
-    if not os.path.exists(path):
-        os.makedirs(path)
-
-def cleanup_path(path):
-    """Cleanup a filesystem path -- remove ~s and extra slashes."""
-    return os.path.abspath(os.path.normpath(os.path.expanduser(path)))
-
 #############
 # sequences #
 #############
 
 # from http://www.hetland.org/python/distance.py
-def edit_distance(a,b):
+def edit_distance(a, b):
     "Calculates the Levenshtein distance between a and b."
     n, m = len(a), len(b)
     if n > m:
@@ -183,18 +104,19 @@ def edit_distance(a,b):
         a, b = b, a
         n, m = m, n
         
-    current = range(n+1)
-    for i in range(1,m+1):
-        previous, current = current, [i]+[0]*m
-        for j in range(1,n+1):
-            add, delete = previous[j]+1, current[j-1]+1
-            change = previous[j-1]
-            if a[j-1] != b[i-1]:
+    current = range(n + 1)
+    for i in range(1, m + 1):
+        previous, current = current, [i] + [0] * m
+        for j in range(1, n + 1):
+            add, delete = previous[j] + 1, current[j - 1] + 1
+            change = previous[j - 1]
+            if a[j - 1] != b[i - 1]:
                 change = change + 1
             current[j] = min(add, delete, change)
             
     return current[n]
 
+# TODO: should be a generator
 def power_set(seq):
     """Returns the power set of an (indexable) sequence."""
     return seq \
@@ -320,6 +242,7 @@ class ondemand(property):
     def __init__(self, fget, doc=None):
         property.__init__(self, fget=self.get, fdel=self.delete, doc=doc)
         self.loadfunc = fget
+        import weakref
         self.values = weakref.WeakKeyDictionary()
     def get(self, obj):
         if obj not in self.values:
@@ -333,6 +256,14 @@ class ondemand(property):
             del self.values[obj]
         except:
             pass
+
+def initialize(ob, args):
+    """In __init__, call initialize(self, locals()) to load all passed 
+    arguments."""
+    if 'self' in args:
+        del args['self']
+    for k, v in args.items():
+        setattr(ob, k, v)
 
 def make_attributes_from_args(*argnames):
     """
@@ -430,6 +361,7 @@ def get_current_traceback_tuple():
     """Returns a semiformatted traceback of the current exception as a tuple
     in this form:
        (exceptionclass, exceptioninstance, lines_of_string_traceback_lines)"""
+    import traceback
     exceptionclass, exceptioninstance, tb = sys.exc_info()
     tb_lines = traceback.format_tb(tb)
     return (exceptionclass, exceptioninstance, tb_lines)
@@ -448,6 +380,57 @@ class Symbol:
         return "%s(%r)" % (self.__class__, self.name)
     def __eq__(self, other):
         return self.name == other.name
+
+def make_ranges(length, step):
+    """Make non-overlapping ranges of size at most step, from 0 to length.
+    Ranges are (start, end) tuples where start and end are inclusive.
+    This is probably best demonstrated by example:
+    >>> make_ranges(1050, 200)
+    [(0, 199), (200, 399), (400, 599), (600, 799), (800, 999), (1000, 1049)]"""
+    ranges = []
+    count = 0
+    while count < length:
+        end = min(count + step, length)
+        r = (count, end - 1)
+        ranges.append(r)
+        count += step
+    return ranges
+
+def bettersystem(command, stdout=None, stderr=None):
+    """Not quite finished, sadly."""
+    import select
+    from popen2 import Popen3
+    stdout = stdout or sys.stdout
+    stderr = stderr or sys.stderr
+    p = Popen3(command, capturestderr=True)
+    p_out, p_err = p.fromchild, p.childerr
+    fd_out = p_out.fileno()
+    fd_err = p_err.fileno()
+
+    while 1:
+        if p.poll() != -1:
+            break
+
+        rlist, _, _ = select.select([p_out, p_err], [], [])
+        if not rlist:
+            break
+
+        if p_out in rlist:
+            output = os.read(fd_out, 1024)
+            if output == '':
+                p.wait()
+            else:
+                stdout.write(output)
+                stdout.flush()
+        if p_err in rlist:
+            output = os.read(fd_err, 1024)
+            if output == '':
+                p.wait()
+            else:
+                stderr.write(output)
+                stderr.flush()
+
+    return p.wait()
 
 ################
 # testing code #
