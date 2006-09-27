@@ -1,4 +1,4 @@
-import select, os
+import select, os, sys
 from popen2 import Popen3
 
 def bettersystem(command, stdout=None, stderr=None):
