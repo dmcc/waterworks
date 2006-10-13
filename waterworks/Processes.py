@@ -35,6 +35,7 @@ def bettersystem(command, stdout=None, stderr=None):
 
     return p.wait()
 
+# TODO this might not belong here
 def selectbasedreader(pollobjs, read_amount=1024, timeout=0.1):
     result = ''
     while 1:
