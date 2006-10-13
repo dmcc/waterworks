@@ -27,7 +27,7 @@ feature requests, patches, whatever.
 # todo:
 #  distutil-ification
 
-__version__ = 2.0
+__version__ = 2.1
 __author__ = 'David McClosky (dmcc@bigasterisk.com)'
 
 from __future__ import generators
@@ -64,15 +64,15 @@ class TailedFile:
     def __str__(self):
         'Returns the filename of the file'
         return self.filename
-    def poll(self):
+    def poll(self, read_amount=-1):
         """Returns a string of the new text in the file if there is any.
         If there isn't, it returns None.  If the file shrinks (for
         whatever reason), it will start watching from the new end of
-        the file."""
+        the file and return None."""
         self.size = os.path.getsize(self.filename)
         if self.size > self.offset:
             self.file.seek(self.offset)
-            s = self.file.read()
+            s = self.file.read(read_amount)
             self.offset = self.size
 
             if self.line_buffered:
