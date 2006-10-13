@@ -36,13 +36,16 @@ def describe_exit_status(exitstatus, exitcodedescs=None):
 class ExitCode(Exception):
     """Represents the exit code of a spawned command."""
     def __init__(self, exitcode, message=''):
-        """exitcode is the exit code of a command, message is a
+        """exitcode is the exit status of a command, message is a
         description which will be prepended in the str() of this."""
         self.exitcode = exitcode
         self.message = message
+        self.exitstatus = None
+        if os.WIFEXITED(exitcode):
+            self.exitstatus = os.WEXITSTATUS(exitcode)
     def __repr__(self):
         return "<%s: %s, message=%r>" % (self.__class__.__name__, 
-                                         self.exitcode, 
+                                         self.exitcode,
                                          self.message)
     def __str__(self):
         return "%s%s (exit status %s)" % \
