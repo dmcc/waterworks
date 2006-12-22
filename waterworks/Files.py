@@ -22,6 +22,22 @@ def is_filelike(obj, modes_needed='rw'):
     else:
         return True
 
+def filename_from_obj(obj):
+    """Attempts to recover the filename from an object (a string, file
+    object, etc.)"""
+    if isinstance(obj, basestring):
+        return obj
+    else:
+        try:
+            return obj.filename
+        except AttributeError:
+            pass
+        try:
+            return obj.name # file objects
+        except AttributeError:
+            pass
+    return obj
+
 def open_file_or_filename(obj, mode='r'):
     """obj can be a file-like object or a string of a filename.  Returns a
     file or file-like object associated with obj."""

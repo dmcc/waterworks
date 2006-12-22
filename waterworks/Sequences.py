@@ -92,3 +92,19 @@ def separate_by_pred(pred, iterable):
         else:
             no.append(elt)
     return yes, no
+
+def make_ranges(length, step):
+    """Make non-overlapping ranges of size at most step, from 0 to length.
+    Ranges are (start, end) tuples where start and end are inclusive.
+    This is probably best demonstrated by example:
+    >>> make_ranges(1050, 200)
+    [(0, 199), (200, 399), (400, 599), (600, 799), (800, 999), (1000, 1049)]"""
+    ranges = []
+    count = 0
+    while count < length:
+        end = min(count + step, length)
+        r = (count, end - 1)
+        ranges.append(r)
+        count += step
+    return ranges
+

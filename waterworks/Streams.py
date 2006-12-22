@@ -1,4 +1,5 @@
 import sys
+from cStringIO import StringIO
 
 class stream_prefixer:
    def __init__(self, prefix, originalstream):
@@ -20,3 +21,28 @@ class stream_prefixer:
 
 def prefix_stdout(prefix):
     sys.stdout = stream_prefixer(prefix, sys.stdout)
+
+class Tee:
+    def __init__(self, stream):
+        self.stream = stream
+        self.output = StringIO()
+    def write(self, s):
+        self.stream.write(s)
+        self.output.seek(0, 2)
+        self.output.write(s)
+    def __str__(self):
+        self.output.seek(0, 0)
+        return self.output.read()
+    def __getattr__(self, attr):
+        return getattr(self.stream, attr)
+
+def tee_stdout():
+    return Tee(sys.stdout)
+def tee_stderr():
+    return Tee(sys.stderr)
+
+if __name__ == "__main__":
+    sys.stdout = tee_stdout()
+
+    print "hi!"
+    print 'str()ed:', repr(str(sys.stdout))
