@@ -26,14 +26,14 @@ def guesslogbucketsfromdata(data, numbuckets=None):
     numbuckets = numbuckets or (math.log10(len(data)) * 10)
     return guesslogbuckets(min(data), max(data), numbuckets)
 
-def uniformbuckets(minval, maxval, numbuckets=10):
+def uniformbuckets(minval, maxval, numbuckets=10, autoshrink=True):
     """Make numbuckets bucket cutoffs, each of the same size between
     minval and maxval."""
     diff = maxval - minval
-    if numbuckets > diff:
+    if autoshrink and numbuckets > diff:
         numbuckets = diff
-    size = int(diff / numbuckets)
-    return range(int(minval), int(maxval), size)
+    size = int(math.ceil(diff / float(numbuckets)))
+    return range(int(minval), int(maxval) + size, size)
 
 def uniformbucketsfloat(minval, maxval, numbuckets=10):
     """Make numbuckets bucket cutoffs, each of the same size between
@@ -48,9 +48,10 @@ def uniformbucketsfloat(minval, maxval, numbuckets=10):
     return l
 
 # uniform sized
-def guessuniformbucketsfromdata(data, numbuckets=None):
+def guessuniformbucketsfromdata(data, numbuckets=None, autoshrink=True):
     numbuckets = numbuckets or (math.log10(len(data)) * 2)
-    return uniformbuckets(min(data), max(data), numbuckets)
+    return uniformbuckets(min(data), max(data), numbuckets, 
+                          autoshrink=autoshrink)
 
 # TODO this has some problems
 # uniform number of items in buckets
@@ -153,6 +154,12 @@ class HistogramBucketDict(IterableUserDict):
         s = '\n'.join([(template % ranges[k]) + bars[v]
             for k, v in items])
         return s
+    def normalize(self, newmax=1):
+        total = 0.0
+        for k, v in self.items():
+            total += v
+        for (start, end), v in list(self.items()):
+            self[start] = (v / total) * newmax
 
 def gnuplot_histograms(histograms, names, scale='uniform', graph_with='boxes'):
     gnuplot_commands = NamedTemporaryFile(mode='w')
