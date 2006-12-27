@@ -74,14 +74,18 @@ except NameError:
         l = list(iterable)
         return [iter(l) for x in range(n)]
 
-def pairwise(iterable):
+def pairwise(iterable, pad=False):
     "s -> (s0,s1), (s1,s2), (s2, s3), ..."
     a, b = tee(iterable)
     try:
         b.next()
     except StopIteration:
         pass
-    return izip(a, b)
+
+    if pad:
+        return izip(a, padnone(b))
+    else:
+        return izip(a, b)
 
 # written by dmcc -- not in the real iterextras
 def batch(iterable, batchsize=2):
