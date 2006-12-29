@@ -1,3 +1,4 @@
+"""Wraps twisted.python.threadpool in a way that makes more sense to me."""
 import time, random
 from twisted.python import threadpool, threadable
 

@@ -31,7 +31,7 @@ __version__ = 2.1
 __author__ = 'David McClosky (dmcc@bigasterisk.com)'
 
 from __future__ import generators
-import os, sys, time
+import os, sys, time, select
 
 __all__ = ['TailedFile', 'TailInterface', 'Tailer']
 
@@ -95,6 +95,14 @@ class TailedFile:
         if self.size < self.offset:
             self.offset = self.size
         return None
+    def select(self, read_amount=-1, timeout=None):
+        """Uses select() on the file instead of busy-waiting.  This has
+        the same semantics as poll() when timeout is a positive integer
+        -- it will return None if there are no new changes.  If timeout
+        is None, we will quietly wait until new data arrives."""
+        r, w, e = select.select([self.file.fileno()], [], [], timeout)
+        t = self.file.read()
+        return self.poll(read_amount)
 
 class TailInterface:
     """An interface for file watching."""

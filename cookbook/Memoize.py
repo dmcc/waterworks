@@ -26,6 +26,9 @@ class Memoize:
         """Forget all memoized results."""
         self.memo.clear()
 
+# this came from a different recipe
+# http://aspn.activestate.com/ASPN/Cookbook/Python/Recipe/325205
+# TODO: incorporate more of their code (ImmutableDict, e.g.)
 import types
 def cachedmethod(function):
     return types.MethodType(Memoize(function), None)

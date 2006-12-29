@@ -56,8 +56,31 @@ def spy_matrix_pil(A,fname='tmp.png',cutoff=0.1,do_outline=0,
     img.save(fname)
     return
 
+def get_color(a,cmin,cmax):
+    """\
+    Convert a float value to one of a continuous range of colors.
+    Rewritten to use recipe 9.10 from the Python Cookbook.
+    """
+    import math
+    try: a = float(a-cmin)/(cmax-cmin)
+    except ZeroDivisionError: a=0.5 # cmax == cmin
+    blue = min((max((4*(0.75-a),0.)),1.))
+    red = min((max((4*(a-0.25),0.)),1.))
+    green = min((max((4*math.fabs(a-0.5)-1.,0)),1.))
+    return '#%1x%1x%1x' % (int(15*red),int(15*green),int(15*blue))
+
+def get_color_grey(a,cmin,cmax):
+    """\
+    Convert a float value to one of a continuous range of colors.
+    Rewritten to use recipe 9.10 from the Python Cookbook.
+    """
+    import math
+    try: a = float(a-cmin)/(cmax-cmin)
+    except ZeroDivisionError: a=0.5 # cmax == cmin
+    return '#%02x%02x%02x' % (int(255*a),int(255*a),int(255*a))
+
 def pcolor_matrix_pil(A,fname='tmp.png',do_outline=0,
-                      height=300,width=300):
+                      height=300,width=300,colorfunc=get_color_grey):
     """\
     Use a matlab-like 'pcolor' function to display the large elements
     of a matrix using the Python Imaging Library.
@@ -79,10 +102,14 @@ def pcolor_matrix_pil(A,fname='tmp.png',do_outline=0,
     img = Image.new("RGB",(width,height),(255,255,255))
     draw = ImageDraw.Draw(img)
 
-    mina = min(min(A))
-    maxa = max(max(A))
-
     n,m = A.shape
+    mina = min(min(A)) # this apparently doesn't work, for loops added --dmcc
+    maxa = max(max(A))
+    for i in range(n):
+        for j in range(m):
+            mina = min(A[i,j],mina)
+            maxa = max(A[i,j],maxa)
+
     if n>width or m>height:
         raise "Rectangle too big %d %d %d %d" % (n,m,width,height)
     for i in range(n):
@@ -91,7 +118,7 @@ def pcolor_matrix_pil(A,fname='tmp.png',do_outline=0,
         for j in range(m):
             ymin = height*j/float(m)
             ymax = height*(j+1)/float(m)
-            color = get_color(A[i,j],mina,maxa)
+            color = colorfunc(A[i,j],mina,maxa)
             if do_outline:
                 draw.rectangle((xmin,ymin,xmax,ymax),fill=color,
                                outline=(0,0,0))
@@ -100,19 +127,6 @@ def pcolor_matrix_pil(A,fname='tmp.png',do_outline=0,
                     
     img.save(fname)
     return
-
-def get_color(a,cmin,cmax):
-    """\
-    Convert a float value to one of a continuous range of colors.
-    Rewritten to use recipe 9.10 from the Python Cookbook.
-    """
-    import math
-    try: a = float(a-cmin)/(cmax-cmin)
-    except ZeroDivisionError: a=0.5 # cmax == cmin
-    blue = min((max((4*(0.75-a),0.)),1.))
-    red = min((max((4*(a-0.25),0.)),1.))
-    green = min((max((4*math.fabs(a-0.5)-1.,0)),1.))
-    return '#%1x%1x%1x' % (int(15*red),int(15*green),int(15*blue))
 
 if __name__ == "__main__":
     from Numeric import identity, Float
