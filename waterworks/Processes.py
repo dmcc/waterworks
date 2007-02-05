@@ -11,10 +11,9 @@ def bettersystem(command, stdout=None, stderr=None):
     fd_out = p_out.fileno()
     fd_err = p_err.fileno()
 
+    out_finished = False
+    err_finished = False
     while 1:
-        if p.poll() != -1:
-            break
-
         rlist, _, _ = select.select([p_out, p_err], [], [])
         if not rlist:
             break
@@ -22,17 +21,20 @@ def bettersystem(command, stdout=None, stderr=None):
         if p_out in rlist:
             output = os.read(fd_out, 1024)
             if output == '':
-                p.wait()
+                out_finished = True
             else:
                 stdout.write(output)
                 stdout.flush()
         if p_err in rlist:
             output = os.read(fd_err, 1024)
             if output == '':
-                p.wait()
+                err_finished = True
             else:
                 stderr.write(output)
                 stderr.flush()
+
+        if out_finished and err_finished and p.poll() != -1:
+            break
 
     return p.wait()
 
