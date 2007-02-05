@@ -2,7 +2,8 @@ import select, os, sys
 from popen2 import Popen3
 
 def bettersystem(command, stdout=None, stderr=None):
-    """Not quite finished, sadly."""
+    """Select-based version of commands.getstatusoutput.  stdout and stderr
+    are stream or stream-like objects.  Returns the exit status."""
     stdout = stdout or sys.stdout
     stderr = stderr or sys.stderr
     p = Popen3(command, capturestderr=True)

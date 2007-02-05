@@ -1,3 +1,4 @@
+"""Tools for creating and displaying histograms."""
 import math
 from UserDict import IterableUserDict
 from tempfile import NamedTemporaryFile

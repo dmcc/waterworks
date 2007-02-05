@@ -1,3 +1,4 @@
+"""Convert a Python table into a LaTeX/TeX table."""
 def texify(table, compact=1, has_header=False):
     """compact is a value from 0 to 2 which controls how much whitespace
     we output.  It does not change the display of the table."""

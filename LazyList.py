@@ -1,3 +1,5 @@
+"""Lets you treat an interator as a list by filling in the list on demand."""
+
 class LazyList:
     def __init__(self, iterator, use_partial_list=False):
         self.list_so_far = []

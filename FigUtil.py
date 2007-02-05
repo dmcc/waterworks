@@ -1,3 +1,4 @@
+"""Tools for creating tables and figures in papers."""
 from sets import Set
 import sys
 

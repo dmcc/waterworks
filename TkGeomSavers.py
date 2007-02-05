@@ -1,6 +1,8 @@
+"""Common geometry behaviors for Tk/Tix"""
 import atexit, os, Tix as Tk
 
 class GeomSaverMixin:
+    """Mixin for widgets that save/load their geometry."""
     def __init__(self, title):
         self.title(title)
         atexit.register(self.save_geom)

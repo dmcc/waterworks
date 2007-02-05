@@ -1,6 +1,7 @@
-"""This file contains many potentially helpful functions.  Originally,
-all functions lived in Utility, but for organizational and faster-importing
-purposes, it has mostly been split into many smaller files. (waterworks.*)"""
+"""(DEPRECATED) This file contains many potentially helpful functions.
+Originally, all functions lived in Utility, but for organizational and
+faster-importing purposes, it has mostly been split into many smaller
+files. (waterworks.*)"""
 
 from __future__ import nested_scopes
 import os, sys

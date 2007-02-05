@@ -1,11 +1,13 @@
-"""Some useful iterator functions from py2.4 test_itertools.py"""
+"""Some useful iterator functions from py2.4 test_itertools.py plus a
+couple added items."""
 
 from itertools import *
 __all__ = ['take', 'tabulate', 'iteritems', 'nth', 'all', 'any', 'no',
     'quantify', 'padnone', 'ncycles', 'dotproduct', 'flatten',
-    'repeatfunc', 'pairwise', 'tee']
+    'repeatfunc', 'pairwise', 'tee', 'iunzip', 'batch']
 
 def take(n, seq):
+    """Return the first n items in a sequence."""
     return list(islice(seq, n))
 
 def tabulate(function):
@@ -13,6 +15,7 @@ def tabulate(function):
     return imap(function, count())
 
 def iteritems(mapping):
+    """Same as dict.iteritems()"""
     return izip(mapping.iterkeys(), mapping.itervalues())
 
 def nth(iterable, n):
@@ -50,9 +53,11 @@ def ncycles(seq, n):
     return chain(*repeat(seq, n))
 
 def dotproduct(vec1, vec2):
+    """Return the dot product between two vectors."""
     return sum(imap(operator.mul, vec1, vec2))
 
 def flatten(listOfLists):
+    """Flatten a list of lists."""
     return list(chain(*listOfLists))
 
 def repeatfunc(func, times=None, *args):
@@ -74,6 +79,7 @@ except NameError:
         l = list(iterable)
         return [iter(l) for x in range(n)]
 
+# pad option added by dmcc
 def pairwise(iterable, pad=False):
     "s -> (s0,s1), (s1,s2), (s2, s3), ..."
     a, b = tee(iterable)
@@ -87,7 +93,7 @@ def pairwise(iterable, pad=False):
     else:
         return izip(a, b)
 
-# written by dmcc -- not in the real iterextras
+# the following are written by dmcc -- not in the real iterextras
 def batch(iterable, batchsize=2):
     """Yield a list of (up to) batchsize items at a time.  The last
     element will be shorter if there are items left over.
@@ -101,7 +107,6 @@ def batch(iterable, batchsize=2):
     if current:
         yield current
 
-# written by dmcc -- not in the real iterextras
 import operator
 def iunzip(iterable, n=None):
     """Takes an iterator that yields n-tuples and returns n iterators

@@ -1,6 +1,10 @@
+"""Just like shelve, but keys are always integers instead of strings."""
 import shelve, anydbm, os
 
-# TODO possibly incomplete
+# this module is in the middle of (stalled) refactoring.
+# the goal is to ensure that IntShelve is close enough to IW.
+# also, WriteOnDemandShelve should probably its own module.
+
 class IntShelve:
     """Interface to shelve where keys are always integers."""
     def __init__(self, filename):

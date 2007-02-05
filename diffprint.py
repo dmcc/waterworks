@@ -1,3 +1,4 @@
+"""Helps visualize diffs by giving you two parallel lists to print."""
 import difflib
 
 def diffprint(a, b):

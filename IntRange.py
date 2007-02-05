@@ -25,8 +25,8 @@ def parse(string_to_parse, range_markers=(r'-', r'\.\.'),
 
     return ints
 
-# TODO: one can insert a range that is enclosed by an outer range
-# this shouldn't be possible
+# TODO: one can insert a range that is enclosed by an outer range.
+# this shouldn't be possible -- we should use an integer tree
 class Rangifier:
     """Example:
 

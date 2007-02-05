@@ -1,4 +1,4 @@
-"""Interpret exit statuses."""
+"""Create textual descriptions of exit statuses."""
 __author__ = "David McClosky (dmcc AT cs.brown.edu)"
 
 import os, signal

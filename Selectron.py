@@ -1,11 +1,6 @@
-from Tix import *
-import time
-__all__ = ['Selectron']
+"""The Selectron 6000 - A selecting widget for Tix.
 
-__doc__ = """
-The Selectron 6000
-
-A widget for Tix.  The widget is modelled after the song selector in
+The widget is modelled after the song selector in
 xmms when you press the 'j' key.  The Selectron, unlike the one in xmms,
 holds objects and relies on their __str__() method to display them in
 the widget (you can change which method is used).
@@ -32,8 +27,12 @@ If you dont' have it, you will get:
 "Hello there" hi hola ==> ['"Hello', 'there"', 'hi', 'hola']
 """
 
-__author__ = 'David McClosky (dmcc@bigasterisk.com)'
+from Tix import *
+import time
+
+__author__ = 'David McClosky (dmcc+py AT bigasterisk DOT com)'
 __version__ = '1.0'
+__all__ = ['Selectron']
 
 # TODO: 
 #   right clicking copies description to entry
