@@ -1,6 +1,5 @@
 #!/usr/bin/env python
-__doc__ = """
-tail -f for multiple files written natively in Python
+"""tail -f for multiple files written natively in Python.
 
 Polls files for appended text.  Can call a callback function with the
 changes if you'd like, or you can control when the pollings occur.
@@ -24,11 +23,8 @@ Please feel free to contact me at dmcc AT bigasterisk DOT com with questions,
 feature requests, patches, whatever.
 """
 
-# todo:
-#  distutil-ification
-
 __version__ = 2.1
-__author__ = 'David McClosky (dmcc@bigasterisk.com)'
+__author__ = 'David McClosky (dmcc+py AT bigasterisk DOT com)'
 
 from __future__ import generators
 import os, sys, time, select
@@ -46,7 +42,7 @@ class TailedFile:
         Like Python lists, if initial is less than 0, we will count from
         the current end of the file.  If line_buffered is True, we will
         buffer new bits until we see a newline at the end of a line."""
-        self.file = open(filename, 'r')
+        self.file = open(filename, 'rb')
         self.filename = filename
         if initial is None:
             self.offset = os.path.getsize(filename)
@@ -64,6 +60,22 @@ class TailedFile:
     def __str__(self):
         'Returns the filename of the file'
         return self.filename
+    def seek_to_last_newline(self, step=10, newline='\n'):
+        """Try to find the beginning of the current line"""
+        self._partial_lines = ''
+        self.file.seek(self.offset)
+        while 1:
+            self.file.seek(-step, 1) # move N bytes back
+            last_bit =  self.file.read(step)
+            if newline in last_bit:
+                pos = last_bit.find(newline)
+                diff = step - pos
+                self.file.seek(-diff, 1)
+                self.size = self.file.tell()
+                self.offset = self.file.tell()
+                break
+            self.file.seek(-step, 1) # move N bytes back (again since we read)
+
     def poll(self, read_amount=-1):
         """Returns a string of the new text in the file if there is any.
         If there isn't, it returns None.  If the file shrinks (for
@@ -81,7 +93,6 @@ class TailedFile:
                     self._partial_lines = ''
                 else:
                     # buffer the partial line
-                    s = self._partial_lines + s
                     lines = s.splitlines()
                     if len(lines) > 1:
                         s = '\n'.join(lines[:-1]) + '\n'
