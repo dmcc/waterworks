@@ -34,6 +34,21 @@ class IntShelve:
     def __delitem__(self, key):
         self._ensure_write_mode()
         del self._shelve[str(key)]
+    def update(self, new_dict):
+        self._ensure_write_mode()
+        new_dict_str = dict([(str(k), v) for k, v in new_dict.items()])
+        self._shelve.update(new_dict_str)
+    def pop(self, key, default=None):
+        self._ensure_write_mode()
+        self._shelve.pop(str(key))
+    def popitem(self):
+        self._ensure_write_mode()
+        k, v = self._shelve.popitem()
+        return (int(k), v)
+    def setdefault(self, key, default):
+        if key not in self:
+            self._ensure_write_mode()
+            self[key] = default
     def clear(self):
         self._ensure_write_mode()
         self._shelve.clear()
