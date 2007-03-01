@@ -5,7 +5,7 @@ if len(sys.argv) < 2:
     sys.argv.append("build")
 
 setup(name = "waterworks",
-      version = "0.1e",
+      version = "0.1f",
       maintainer = "David McClosky",
       maintainer_email = "dmcc+py (at) cs.brown.edu",
       description = "David McClosky's utility library",
