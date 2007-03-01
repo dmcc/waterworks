@@ -162,6 +162,14 @@ class HistogramBucketDict(IterableUserDict):
         for (start, end), v in list(self.items()):
             self[start] = (v / total) * newmax
 
+def histogramify(amounts, normalize=True):
+    """Fast, one command Histogram creation for the common case."""
+    buckets = guessuniformbucketsfromdata(amounts)
+    h = HistogramBucketDict(buckets, amounts)
+    if normalize:
+        h.normalize(100)
+    return h
+
 def gnuplot_histograms(histograms, names, scale='uniform', graph_with='boxes'):
     gnuplot_commands = NamedTemporaryFile(mode='w')
     plotfiles = []
