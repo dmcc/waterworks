@@ -162,9 +162,9 @@ class HistogramBucketDict(IterableUserDict):
         for (start, end), v in list(self.items()):
             self[start] = (v / total) * newmax
 
-def histogramify(amounts, normalize=True):
+def histogramify(amounts, numbuckets=None, normalize=True):
     """Fast, one command Histogram creation for the common case."""
-    buckets = guessuniformbucketsfromdata(amounts)
+    buckets = guessuniformbucketsfromdata(amounts, numbuckets=numbuckets)
     h = HistogramBucketDict(buckets, amounts)
     if normalize:
         h.normalize(100)
