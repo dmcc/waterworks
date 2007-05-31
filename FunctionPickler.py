@@ -17,6 +17,8 @@ class PickledFunction:
 
         try: # make sure we can find the function later
             self._import()
+        except (KeyboardInterrupt, SystemExit): 
+            raise
         except:
             raise PicklingError("Can't pickle function %r" % function)
     def __setstate__(self, state):
