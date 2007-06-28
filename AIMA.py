@@ -49,7 +49,8 @@ except NameError:
             i += 1
 
 
-try: reversed ## Introduced in 2.4
+try:
+    reversed ## Introduced in 2.4
 except NameError:
     def reversed(seq):
         """Iterate over x in reverse order.
@@ -62,9 +63,10 @@ except NameError:
         while i > 0:
             i -= 1
             yield seq[i]
+reversed = __builtins__['reversed']
 
-
-try: sorted ## Introduced in 2.4
+try: 
+    sorted ## Introduced in 2.4
 except NameError:
     def sorted(seq, cmp=None, key=None, reverse=False):
         """Copy seq and sort and return it.
@@ -82,6 +84,7 @@ except NameError:
         elif cmpfn and not key: return cmpfn
         elif not cmpfn and key: return lambda x,y: cmp(key(x), key(y))
         else: return lambda x,y: cmpfn(key(x), key(y))  
+sorted = __builtins__['sorted']
 
 try: 
     set, frozenset ## set builtin introduced in 2.4
