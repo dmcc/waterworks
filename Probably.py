@@ -84,8 +84,8 @@ def sample_multinomial(probs):
         tot += pr / norm
         if rn < tot:
             return ctr
-    raise("Failed to sample from "+str(probs)+
-          ", sample was "+str(rn)+" norm was "+str(norm))
+    raise ValueError("Failed to sample from "+str(probs)+
+                     ", sample was "+str(rn)+" norm was "+str(norm))
 
 def sample_log_multinomial(probs):
     """Gives a random sample from the unnormalized multinomial distribution
