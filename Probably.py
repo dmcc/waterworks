@@ -72,3 +72,54 @@ def mutual_information(confusion_dict):
     return entropy_of_multinomal(count_x.values()) + \
            entropy_of_multinomal(count_y.values()) - \
            entropy_of_multinomal(confusion_dict.values())
+
+def sample_multinomial(probs):
+    """Gives a random sample from the unnormalized multinomial distribution
+    probs, returned as the index of the sampled element."""
+    norm = sum(probs)
+
+    rn = random()
+    tot = 0.0
+    for ctr, pr in enumerate(probs):
+        tot += pr / norm
+        if rn < tot:
+            return ctr
+    raise("Failed to sample from "+str(probs)+
+          ", sample was "+str(rn)+" norm was "+str(norm))
+
+def sample_log_multinomial(probs):
+    """Gives a random sample from the unnormalized multinomial distribution
+    whose natural logarithm is probs, returned as the index of the sampled
+    element."""
+
+    maxElt = max(probs)
+    expProbs = [math.exp(p - maxElt) for p in probs]
+    return sample_multinomial(expProbs)
+
+if __name__ == "__main__":
+    dist = [1, 3, 5]
+    print "Sampling from distribution:", dist
+
+    hist = {1:0, 3:0, 5:0}
+    samples = 5000
+    for x in range(samples):
+        hist[dist[sample_multinomial(dist)]] += 1
+
+    normdist = sum(dist)
+    for d in dist:
+        print "True frequency:", d/normdist, \
+              "sampled frequency", hist[d]/samples
+
+    dist = [.8, .2, .5]
+    logdist = [math.log(x) for x in dist]
+    print "Sampling from logarithmic distribution:", logdist
+    hist = dict([(x,0) for x in dist])
+    samples = 5000
+    for x in range(samples):
+        hist[dist[sample_multinomial(dist)]] += 1
+
+    normdist = sum(dist)
+    for d in dist:
+        print "True frequency:", d/normdist, \
+              "sampled frequency", hist[d]/samples
+        
