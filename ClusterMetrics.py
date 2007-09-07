@@ -1,6 +1,8 @@
 """ClusterMetrics: a metric ****** of cluster metrics!"""
 from __future__ import division
-from Probably import variation_of_information as vi, mutual_information as mi
+from Probably import variation_of_information as vi, \
+    mutual_information as mi, log2
+from waterworks.Tools import ondemand
 from AIMA import DefaultDict
 
 class ConfusionMatrix:
@@ -14,6 +16,8 @@ class ConfusionMatrix:
             for gold, count in gold_dict.items():
                 yield (gold, test), count
     def one_to_one_greedy_mapping(self):
+        """Computes the one-to-one greedy mapping.  The mapping returned
+        is a dictionary of {test : gold}"""
         one_to_one_mapping = {} # test : gold
         confusion_by_count = sorted((-count, (gold, test))
             for (gold, test), count in self.as_confusion_items())
@@ -26,8 +30,12 @@ class ConfusionMatrix:
                 one_to_one_mapping[test] = gold
         return one_to_one_mapping
     def one_to_one_greedy(self):
+        """Computes and evaluates the one-to-one greedy mapping.
+        Returns a score between 0.0 and 1.0 (higher is better)."""
         return self.eval_mapping(self.one_to_one_greedy_mapping())
     def one_to_one_optimal_mapping(self):
+        """Computes the one-to-one optimal mapping using the Hungarian 
+        algorithm.  The mapping returned is a dictionary of {test : gold}"""
         import pyung
         all_gold = set()
         for (gold, test), count in self.as_confusion_items():
@@ -53,8 +61,12 @@ class ConfusionMatrix:
             mapping_dict[test] = all_gold[gold_index]
         return mapping_dict
     def one_to_one_optimal(self):
+        """Computes and evaluates the one-to-one optimal mapping.
+        Returns a score between 0.0 and 1.0 (higher is better)."""
         return self.eval_mapping(self.one_to_one_optimal_mapping())
     def many_to_one_mapping(self):
+        """Computes the many-to-one mapping.  The mapping returned is
+        a dictionary of {test : gold}"""
         many_to_one_mapping = {} # test tag : gold tag
         for test, gold_counts in self.by_test.items():
             by_count = ((v, k) for k, v in gold_counts.items())
@@ -62,10 +74,17 @@ class ConfusionMatrix:
             many_to_one_mapping[test] = top
         return many_to_one_mapping
     def many_to_one(self):
+        """Computes and evaluates the many-to-one mapping.  Returns a
+        score between 0.0 and 1.0 (higher is better)."""
         return self.eval_mapping(self.many_to_one_mapping())
     def eval_mapping(self, mapping, verbose=True):
+        """Evaluates a mapping (dictionary of assignments between test and
+        gold).  Returns a score between 0.0 and 1.0 (higher is better).
+        
+        If verbose is true, the mapping will be printed before being
+        evaluated."""
         if verbose:
-            print "mapping", mapping
+            print "Mapping", mapping
         right = 0
         wrong = 0
         for (gold, test), count in self.as_confusion_items():
@@ -75,8 +94,12 @@ class ConfusionMatrix:
                 wrong += count
         return right, wrong, right / (right + wrong)
     def variation_of_information(self):
+        """Calculates the variation of information between the test and gold.  
+        Lower is better, minimum is 0.0"""
         return vi(dict(self.as_confusion_items()))
     def mutual_information(self):
+        """Calculates the mutual information between the test and gold.  
+        Higher is better, minimum is 0.0"""
         return mi(dict(self.as_confusion_items()))
 
 if __name__ == "__main__":
