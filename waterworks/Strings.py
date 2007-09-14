@@ -75,21 +75,23 @@ def pretty_time_range(diff, show_seconds=True):
     >>> pretty_time_range(1000)
     '16m40s'
     >>> pretty_time_range(10000)
-    '2h46m'
+    '2h46m40s'
     >>> pretty_time_range(100000)
-    '27h46m'
+    '1d3h46m40s'
     """
     diff = int(diff)
-    hours = diff / 3600
-    diff %= 3600.0
-    minutes = int(diff) / 60
-    diff %= 60.0
-    seconds = int(diff)
+    days, diff = divmod(diff, 86400)
+    hours, diff = divmod(diff, 3600)
+    minutes, seconds = divmod(diff, 60)
     str = ''
-    if hours: str = '%sh' % hours
+    if days: 
+        str += '%sd' % days
+    if hours: 
+        str += '%sh' % hours
     if minutes: 
         str += '%sm' % minutes
-        if show_seconds and not hours and seconds: str += '%ss' % seconds
+    if show_seconds and seconds: 
+        str += '%ss' % seconds
     if not str:
         if show_seconds: str = '%ss' % seconds
         else: str = '0m'
