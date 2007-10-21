@@ -2,6 +2,16 @@
 # dictionary manipulation #
 ###########################
 
+def dictadd(d1, d2):
+    """Add the numeric values of values in two dictionaries together in
+    a functional fashion (d1 and d2 are not modified)."""
+    # we're going to clone d1, so we'll reverse our arguments if d2 is the
+    # smaller one
+    if len(d2) < len(d1):
+        d1, d2 = d2, d1
+    d1 = dict(d1) # clone d1
+    return dictiadd(d1, d2)
+
 def dictiadd(d1, d2):
     """Add the numeric values of values in two dictionaries together,
     modifying the first argument in place. (Called iadd to be like
