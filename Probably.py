@@ -1,9 +1,10 @@
 """Potentially useful functions for probability, statistics, and machine
-learning."""
+learning.  All entropies in this are base 2 unless otherwise specified."""
 from __future__ import division
 
 import math
 from random import uniform, random
+from AIMA import normalize
 
 def log2(x):
     """Returns log base 2 of a number."""
@@ -35,14 +36,53 @@ def sample_simplex(n):
     s = sum(parts)
     return [part / s for part in parts]
 
-def entropy_of_multinomal(count_seq):
-    # TODO document
-    total = sum(count_seq)
+def entropy(probabilities):
+    """Returns the entropy of a discrete random variable with given 
+    probabilities.
+    
+    Examples:
+    >>> entropy((0.5, 0.5))
+    1.0
+    >>> entropy((0.75, 0.25))
+    0.81127812445913283
+    >>> entropy((0.1, 0.1, 0.8))
+    0.92192809488736227
+    """
     entropy = 0
-    for i in count_seq:
-        prob_i = i / total
-        entropy -= xlog2x(prob_i)
+    for prob in probabilities:
+        entropy -= xlog2x(prob)
     return entropy
+
+def entropy_of_multinomial(count_seq):
+    """Returns the entropy of a multinomial with given event counts.
+    
+    Examples:
+    >>> entropy_of_multinomial((1, 1))
+    1.0
+    >>> entropy_of_multinomial((1, 2))
+    0.91829583405448956
+    >>> entropy_of_multinomial((2, 1))
+    0.91829583405448956
+    >>> entropy_of_multinomial((1, 1, 1))
+    1.5849625007211561
+    >>> entropy_of_multinomial((1, 1, 1, 1))
+    2.0
+    >>> entropy_of_multinomial((1, 1, 1, 2))
+    1.9219280948873623
+    """
+    return entropy(normalize(count_seq))
+
+def kl_divergence(p, q):
+    """Return the Kullback-Leibler distance between discrete probability
+    distributions p and q: D(p || q).  p and q are sequences of floats,
+    each summing to 1."""
+    bits = 0
+    for prob_p, prob_q in zip(p, q):
+        if prob_q > 0:
+            bits -= prob_p * log2(prob_p / prob_q)
+        else:
+            raise ValueError("KL divergence isn't well defined if q sequence contains a 0.")
+    return bits
 
 def variation_of_information(confusion_dict):
     """VI(X, Y) = H(X) + H(Y) - 2I(X; Y)
@@ -56,9 +96,9 @@ def variation_of_information(confusion_dict):
         count_x[x_key] += count
         count_y[y_key] += count
 
-    return (2 * entropy_of_multinomal(confusion_dict.values())) - \
-           entropy_of_multinomal(count_x.values()) - \
-           entropy_of_multinomal(count_y.values())
+    return (2 * entropy_of_multinomial(confusion_dict.values())) - \
+           entropy_of_multinomial(count_x.values()) - \
+           entropy_of_multinomial(count_y.values())
 
 def mutual_information(confusion_dict):
     """I(X; Y) = H(X) + H(Y) - H(X, Y)"""
@@ -69,9 +109,9 @@ def mutual_information(confusion_dict):
     for (x_key, y_key), count in confusion_dict.items():
         count_x[x_key] += count
         count_y[y_key] += count
-    return entropy_of_multinomal(count_x.values()) + \
-           entropy_of_multinomal(count_y.values()) - \
-           entropy_of_multinomal(confusion_dict.values())
+    return entropy_of_multinomial(count_x.values()) + \
+           entropy_of_multinomial(count_y.values()) - \
+           entropy_of_multinomial(confusion_dict.values())
 
 def sample_multinomial(probs):
     """Gives a random sample from the unnormalized multinomial distribution
@@ -84,8 +124,8 @@ def sample_multinomial(probs):
         tot += pr / norm
         if rn < tot:
             return ctr
-    raise ValueError("Failed to sample from "+str(probs)+
-                     ", sample was "+str(rn)+" norm was "+str(norm))
+    raise ValueError("Failed to sample from %s, sample was %s, norm was %s" % \
+        (probs, rn, norm))
 
 def sample_log_multinomial(probs):
     """Gives a random sample from the unnormalized multinomial distribution
