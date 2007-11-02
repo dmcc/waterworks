@@ -29,10 +29,11 @@ class ConfusionMatrix:
             else:
                 one_to_one_mapping[test] = gold
         return one_to_one_mapping
-    def one_to_one_greedy(self):
+    def one_to_one_greedy(self, verbose=True):
         """Computes and evaluates the one-to-one greedy mapping.
         Returns a score between 0.0 and 1.0 (higher is better)."""
-        return self.eval_mapping(self.one_to_one_greedy_mapping())
+        return self.eval_mapping(self.one_to_one_greedy_mapping(),
+                                 verbose=verbose)
     def one_to_one_optimal_mapping(self):
         """Computes the one-to-one optimal mapping using the Hungarian 
         algorithm.  The mapping returned is a dictionary of {test : gold}"""
@@ -60,10 +61,11 @@ class ConfusionMatrix:
                 continue
             mapping_dict[test] = all_gold[gold_index]
         return mapping_dict
-    def one_to_one_optimal(self):
+    def one_to_one_optimal(self, verbose=True):
         """Computes and evaluates the one-to-one optimal mapping.
         Returns a score between 0.0 and 1.0 (higher is better)."""
-        return self.eval_mapping(self.one_to_one_optimal_mapping())
+        return self.eval_mapping(self.one_to_one_optimal_mapping(),
+                                 verbose=verbose)
     def many_to_one_mapping(self):
         """Computes the many-to-one mapping.  The mapping returned is
         a dictionary of {test : gold}"""
@@ -73,10 +75,11 @@ class ConfusionMatrix:
             top_count, top = max(by_count)
             many_to_one_mapping[test] = top
         return many_to_one_mapping
-    def many_to_one(self):
+    def many_to_one(self, verbose=True):
         """Computes and evaluates the many-to-one mapping.  Returns a
         score between 0.0 and 1.0 (higher is better)."""
-        return self.eval_mapping(self.many_to_one_mapping())
+        return self.eval_mapping(self.many_to_one_mapping(),
+                                 verbose=verbose)
     def eval_mapping(self, mapping, verbose=True):
         """Evaluates a mapping (dictionary of assignments between test and
         gold).  Returns a score between 0.0 and 1.0 (higher is better).
