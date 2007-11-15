@@ -7,14 +7,59 @@ from AIMA import DefaultDict
 
 class ConfusionMatrix:
     def __init__(self):
+        """Creates an empty confusion matrix.  You'll need to call the add()
+        method to populate it."""
         # test : { gold : count }
         self.by_test = DefaultDict(DefaultDict(0))
     def add(self, gold, test, count=1):
+        """Add count joint occurrences of gold and test."""
         self.by_test[test][gold] += count
     def as_confusion_items(self):
+        """Yields ((gold, test), count) items."""
         for test, gold_dict in self.by_test.items():
             for gold, count in gold_dict.items():
                 yield (gold, test), count
+    def as_confusion_matrix(self):
+        """Returns this as a confusion matrix (list of lists)."""
+        all_test = set()
+        all_gold = set()
+        for (gold, test), count in self.as_confusion_items():
+            all_test.add(test)
+            all_gold.add(gold)
+        all_gold = sorted(all_gold)
+
+        mapping = self.one_to_one_optimal_mapping()
+        def sorter(test):
+            key = mapping.get(test)
+            return (key, -self.by_test[test][key])
+
+        all_test = sorted(all_test, key=sorter)
+        
+        rows = []
+        for gold in all_gold:
+            row = [self.by_test[test][gold] for test in all_test]
+            rows.append(row)
+
+        return rows, all_gold, all_test
+
+    def as_latex_confusion_matrix(self, normalize='gold'):
+        """Returns the table as a LaTeX formatted confusion matrix."""
+        assert normalize == 'gold', "Only supports gold normalization for now."
+
+        from TeXTable import texify
+        rows, gold_labels, test_labels = self.as_confusion_matrix()
+
+
+        header = [''] + test_labels
+        def process_row(row, label):
+            total = sum(row)
+            return [label.replace('$', r'\$')] + \
+                   [r'\cellcolor[gray]{%0.3f}' % (1 - (cell / total))
+                        for cell in row]
+        rows = [header] + [process_row(row, gold_label)
+            for gold_label, row in zip(gold_labels, rows)]
+        return texify(rows, has_header=True)
+
     def one_to_one_greedy_mapping(self):
         """Computes the one-to-one greedy mapping.  The mapping returned
         is a dictionary of {test : gold}"""
