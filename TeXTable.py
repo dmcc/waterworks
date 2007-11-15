@@ -29,7 +29,7 @@ def texify(table, compact=1, has_header=False, hlines=True, vlines=True):
     for count, row in enumerate(table):
         s.append(' & '.join([str(x) for x in row]) + compact1)
         if has_header and count == 0:
-            s.append(r"\\ %s%s\n%s" % (hline_text, hline_text, compact2))
+            s.append(r"\\ %s%s%s%s" % (hline_text, hline_text, '\n', compact2))
         else:
             s.append(r"\\ " + hline_text + "\n" + compact2)
     s.append(r"\end{tabular}")
