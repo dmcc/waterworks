@@ -1,4 +1,6 @@
 """Convert a Python table into a LaTeX/TeX table."""
+__all__ = ['texify', 'make_tex_bitmap']
+
 def texify(table, compact=1, has_header=False, hlines=True, vlines=True):
     """compact is a value from 0 to 2 which controls how much whitespace
     we output.  It does not change the display of the table."""
@@ -36,7 +38,25 @@ def texify(table, compact=1, has_header=False, hlines=True, vlines=True):
 
     return ''.join(s)
 
+def _greyify_cell(cell):
+    if isinstance(cell, float):
+        return r'\cellcolor[gray]{%0.3f}' % cell
+    else:
+        return cell
+
+# XXX TODO more docs
+def make_tex_bitmap(table, has_header=False):
+    """All floats will be converted to their grey values.  You will need
+    to include the LaTeX package colortbl:
+
+        \usepackage{colortbl}
+    """
+    rows = [[_greyify_cell(cell) for cell in row] for row in table]
+    return texify(rows, has_header=has_header)
+
 if __name__ == "__main__":
     print texify([[1, 2, 3],
                   [4, 5, 6],
                   [7, 8, 9]])
+    print
+    print make_tex_bitmap([[0.1, 0.2, 0.3]])
