@@ -43,22 +43,29 @@ class ConfusionMatrix:
         return rows, all_gold, all_test
 
     def as_latex_confusion_matrix(self, normalize='gold'):
-        """Returns the table as a LaTeX formatted confusion matrix."""
+        """Returns the table as a LaTeX formatted confusion matrix.
+        You will need to include the LaTeX package colortbl:
+
+            \usepackage{colortbl}
+        """
         assert normalize == 'gold', "Only supports gold normalization for now."
 
-        from TeXTable import texify
+        from TeXTable import make_tex_bitmap
         rows, gold_labels, test_labels = self.as_confusion_matrix()
 
-
         header = [''] + test_labels
+        def escape_label(label):
+            label = label.replace('$', r'\$')
+            label = label.replace('#', r'\#')
+            label = label.replace('%', r'\%')
+            return label
+
         def process_row(row, label):
             total = sum(row)
-            return [label.replace('$', r'\$')] + \
-                   [r'\cellcolor[gray]{%0.3f}' % (1 - (cell / total))
-                        for cell in row]
+            return [escape_label(label)] + [1 - (cell / total) for cell in row]
         rows = [header] + [process_row(row, gold_label)
             for gold_label, row in zip(gold_labels, rows)]
-        return texify(rows, has_header=True)
+        return make_tex_bitmap(rows, has_header=True)
 
     def one_to_one_greedy_mapping(self):
         """Computes the one-to-one greedy mapping.  The mapping returned
