@@ -113,6 +113,31 @@ def mutual_information(confusion_dict):
            entropy_of_multinomial(count_y.values()) - \
            entropy_of_multinomial(confusion_dict.values())
 
+def conditional_entropy_X_Given_Y(confusion_dict):
+    """H(X|Y) = H(X) - I(X;Y)
+              = H(X) - [H(Y)+H(X)-H(Y,X)]
+              = H(Y,X) - H(Y)"""
+    from AIMA import DefaultDict
+    count_y = DefaultDict(0)
+    for (x_key, y_key), count in confusion_dict.items():
+        count_y[y_key] += count
+
+    return (entropy_of_multinomial(confusion_dict.values())) - \
+           entropy_of_multinomial(count_y.values()) 
+
+def conditional_entropy_Y_Given_X(confusion_dict):
+    """H(Y|X) = H(Y) - I(Y;X)
+              = H(Y) - [H(X)+H(Y)-H(X,Y)]
+              = H(X,Y) - H(X)"""
+    from AIMA import DefaultDict
+    count_x = DefaultDict(0)
+    count_y = DefaultDict(0)
+    for (x_key, y_key), count in confusion_dict.items():
+        count_x[x_key] += count
+        count_y[y_key] += count
+    joint= entropy_of_multinomial(confusion_dict.values())
+    return joint - entropy_of_multinomial(count_x.values())
+
 def sample_multinomial(probs):
     """Gives a random sample from the unnormalized multinomial distribution
     probs, returned as the index of the sampled element."""
