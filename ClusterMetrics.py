@@ -1,7 +1,7 @@
 """ClusterMetrics: a metric ****** of cluster metrics!"""
 from __future__ import division
 from Probably import variation_of_information as vi, \
-    mutual_information as mi, log2
+    mutual_information as mi, log2, conditional_entropy_Y_Given_X
 from waterworks.Tools import ondemand
 from AIMA import DefaultDict
 
@@ -156,6 +156,42 @@ class ConfusionMatrix:
         """Calculates the mutual information between the test and gold.  
         Higher is better, minimum is 0.0"""
         return mi(dict(self.as_confusion_items()))
+
+    def conditional_entropy_gold_given_test(self):
+        """Calculates the conditional entropy of the gold given the test.  
+        lower is better, minimum is 0.0"""
+        return conditional_entropy_Y_Given_X(dict(self.as_confusion_items()))
+
+    def _total_points(self):
+        total = sum(count for (gold, test), count in self.as_confusion_items())
+        return total
+    total_points = ondemand(_total_points)
+
+    def _pairwise_statistics(self):
+        items = []
+        for (gold, test), count in self.as_confusion_items():
+            items.extend((((gold, test),) * count))
+
+        N00 = 0
+        N01 = 0
+        N10 = 0
+        N11 = 0
+        for index1, i1 in enumerate(items):
+            for index2, i2 in enumerate(items):
+                if index2 <= index1:
+                    continue
+                # print index1, index2, i1, i2
+                if i1[0] != i2[0] and i1[1] != i2[1]:
+                    N00 += 1
+                if i1 == i2:
+                    N11 += 1
+                if i1[0] == i2[0] and i1[1] != i2[1]:
+                    N10 += 1
+                if i1[0] != i2[0] and i1[1] == i2[1]:
+                    N01 += 1
+
+        return N00, N11, N01, N10
+    pairwise_statistics = ondemand(_pairwise_statistics)
 
 if __name__ == "__main__":
     cm = ConfusionMatrix()
