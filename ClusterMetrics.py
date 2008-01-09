@@ -1,7 +1,7 @@
 """ClusterMetrics: a metric ****** of cluster metrics!"""
 from __future__ import division
 from Probably import variation_of_information as vi, \
-    mutual_information as mi, log2, conditional_entropy_Y_Given_X
+    mutual_information as mi, log2, conditional_entropy_X_Given_Y
 from waterworks.Tools import ondemand
 from AIMA import DefaultDict
 
@@ -160,7 +160,7 @@ class ConfusionMatrix:
     def conditional_entropy_gold_given_test(self):
         """Calculates the conditional entropy of the gold given the test.  
         lower is better, minimum is 0.0"""
-        return conditional_entropy_Y_Given_X(dict(self.as_confusion_items()))
+        return conditional_entropy_X_Given_Y(dict(self.as_confusion_items()))
 
     def _total_points(self):
         total = sum(count for (gold, test), count in self.as_confusion_items())
