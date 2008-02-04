@@ -145,3 +145,19 @@ class Symbol:
     def __eq__(self, other):
         return self.name == other.name
 
+def generic_repr(self):
+    """Generic representation -- prints out the object's dictionary,
+    ignoring keys that start with '_' and values that are non-false.
+
+    Example usage:
+    class A:
+        def __init__(self, *whatever):
+            do_things()
+
+        __repr__ = generic_repr
+    """
+    d = ', '.join('%s=%r' % item 
+        for item in sorted(self.__dict__.items()) 
+        if not item[0].startswith('_') and item[1])
+    name = str(self.__class__).replace('__main__.', '')
+    return "%s(%s)" % (name, d)
