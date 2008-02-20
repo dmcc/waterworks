@@ -108,3 +108,13 @@ def make_ranges(length, step):
         count += step
     return ranges
 
+def window(seq, n=3, pad=None):
+    ngram = [pad] * n
+    for word in seq:
+        ngram.pop(0)
+        ngram.append(word)
+        yield tuple(ngram)
+    for x in range(n - 1):
+        ngram.pop(0)
+        ngram.append(pad)
+        yield tuple(ngram)
