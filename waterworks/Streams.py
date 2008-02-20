@@ -28,13 +28,13 @@ class Tee:
         self.output = StringIO()
     def write(self, s):
         self.stream.write(s)
-        self.output.seek(0, 2)
+        self.seek(0, 2)
         self.output.write(s)
     def __str__(self):
-        self.output.seek(0, 0)
+        self.seek(0, 0)
         return self.output.read()
     def __getattr__(self, attr):
-        return getattr(self.stream, attr)
+        return getattr(self.output, attr)
 
 def tee_stdout():
     return Tee(sys.stdout)
