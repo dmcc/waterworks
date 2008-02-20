@@ -3,7 +3,7 @@ learning.  All entropies in this are base 2 unless otherwise specified."""
 from __future__ import division
 
 import math
-from random import uniform, random
+from random import uniform, random, randint
 from AIMA import normalize
 
 def log2(x):
@@ -85,7 +85,9 @@ def kl_divergence(p, q):
     return bits
 
 def variation_of_information(confusion_dict):
-    """VI(X, Y) = H(X) + H(Y) - 2I(X; Y)
+    """VI(X, Y) = H(X | Y) + H(Y | X)
+                = H(X) - I(X; Y) + H(Y) - I(X; Y)
+                = H(X) + H(Y) - 2I(X; Y)
                 = H(X) + H(Y) - 2[H(X) + H(Y) - H(X, Y)]
                 = 2H(X, Y) - H(X) - H(Y)"""
     # TODO document better
@@ -135,22 +137,44 @@ def conditional_entropy_Y_Given_X(confusion_dict):
     for (x_key, y_key), count in confusion_dict.items():
         count_x[x_key] += count
         count_y[y_key] += count
-    joint= entropy_of_multinomial(confusion_dict.values())
+    joint = entropy_of_multinomial(confusion_dict.values())
     return joint - entropy_of_multinomial(count_x.values())
+
+def cumulative_density_function(probs):
+    """Calculates the cumulative densities (the total density up to a
+    certain point in the distribution).
+    
+    >>> cumulative_density_function([0.2, 0.8])
+    [0.20000000000000001, 1.0]
+    >>> cumulative_density_function([0.2, 0.1, 0.1, 0.6])
+    [0.20000000000000001, 0.30000000000000004, 0.40000000000000002, 1.0]
+    >>> cumulative_density_function([1.0, 0.0])
+    [1.0, 1.0]
+    >>> cumulative_density_function([0.0, 1.0])
+    [0.0, 1.0]
+    """
+    totals = []
+    total = 0
+    for prob in probs:
+        total += prob
+        totals.append(total)
+    return totals
 
 def sample_multinomial(probs):
     """Gives a random sample from the unnormalized multinomial distribution
     probs, returned as the index of the sampled element."""
     norm = sum(probs)
+    if norm == 0:
+        return randint(0, len(probs) - 1)
 
-    rn = random()
-    tot = 0.0
-    for ctr, pr in enumerate(probs):
-        tot += pr / norm
-        if rn < tot:
-            return ctr
+    sample = random()
+    total = 0.0
+    for x, prob in enumerate(probs):
+        total += prob / norm
+        if sample < total:
+            return x
     raise ValueError("Failed to sample from %s, sample was %s, norm was %s" % \
-        (probs, rn, norm))
+        (probs, sample, norm))
 
 def sample_log_multinomial(probs):
     """Gives a random sample from the unnormalized multinomial distribution
