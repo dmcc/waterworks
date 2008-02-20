@@ -32,6 +32,7 @@ def dict_to_table(d, headers=True, x_header='', reverse=False):
         table.append(row)
     return table
 
+supported_formats = ('csv', 'tsv', 'tex', 'texbitmap')
 def format_table(table, format='csv', outputstream=sys.stdout):
     if format in ('csv', 'tsv'):
         import csv
@@ -42,8 +43,12 @@ def format_table(table, format='csv', outputstream=sys.stdout):
     elif format == 'tex':
         import TeXTable
         print >>outputstream, TeXTable.texify(table, has_header=True)
+    elif format == 'texbitmap':
+        import TeXTable
+        print >>outputstream, TeXTable.make_tex_bitmap(table, has_header=True)
     else:
-        raise ValueError("Sorry, only 'csv', 'tsv', and 'tex' formats are supported now.")
+        raise ValueError("Unsupported format: %r (supported formats: %s)" % \
+            (format, ' '.join(supported_formats)))
 
 if __name__ == "__main__":
     print dict_to_table({('add-0', '01') : 7,
