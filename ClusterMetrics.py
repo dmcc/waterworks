@@ -5,21 +5,47 @@ from Probably import variation_of_information as vi, \
 from waterworks.Tools import ondemand
 from AIMA import DefaultDict
 
-class ConfusionMatrix:
+class ConfusionMatrix(object):
     def __init__(self):
         """Creates an empty confusion matrix.  You'll need to call the add()
         method to populate it."""
         # test : { gold : count }
         self.by_test = DefaultDict(DefaultDict(0))
+        self._all_gold = None
+
+    def __repr__(self):
+        return "<ConfusionMatrix (%s test tags, %s gold tags)>" % \
+            (len(self.all_test), len(self.all_gold))
+
+    def all_gold():
+        doc = "Set of all gold tags.  Calculated on demand."
+        def fget(self):
+            if self._all_gold is None:
+                self._all_gold = set()
+                for gold_dict in self.by_test.values():
+                    self._all_gold.update(gold_dict.keys())
+            return self._all_gold
+        return locals()
+    all_gold = property(**all_gold())
+
+    def all_test():
+        doc = "Set of all test tags."
+        def fget(self):
+            return self.by_test.keys()
+        return locals()
+    all_test = property(**all_test())
+
     def add(self, gold, test, count=1):
         """Add count joint occurrences of gold and test."""
         self.by_test[test][gold] += count
+        # invalidate cache
+        self._all_gold = None
     def as_confusion_items(self):
         """Yields ((gold, test), count) items."""
         for test, gold_dict in self.by_test.items():
             for gold, count in gold_dict.items():
                 yield (gold, test), count
-    def as_confusion_matrix(self):
+    def as_confusion_matrix(self, mapping_method='one_to_one_optimal_mapping'):
         """Returns this as a confusion matrix (list of lists)."""
         all_test = set()
         all_gold = set()
@@ -28,7 +54,8 @@ class ConfusionMatrix:
             all_gold.add(gold)
         all_gold = sorted(all_gold)
 
-        mapping = self.one_to_one_optimal_mapping()
+        mapping_method = getattr(self, mapping_method)
+        mapping = mapping_method()
         def sorter(test):
             key = mapping.get(test)
             return (key, -self.by_test[test][key])
@@ -66,6 +93,39 @@ class ConfusionMatrix:
         rows = [header] + [process_row(row, gold_label)
             for gold_label, row in zip(gold_labels, rows)]
         return make_tex_bitmap(rows, has_header=True)
+
+    def pylab_pcolor(self, mapping_method='one_to_one_greedy_mapping',
+                     normalize='gold'):
+
+        assert normalize in ('total', 'gold', 'test')
+
+        import pylab, numpy
+        rows, gold_labels, test_labels = \
+            self.as_confusion_matrix(mapping_method=mapping_method)
+
+        def normalize_row_by_total(row):
+            total = self.total_points
+            return [1 - (cell / total) for cell in row]
+
+        def normalize_row_by_row(row):
+            total = sum(row)
+            return [1 - (cell / total) for cell in row]
+
+        if normalize == 'total':
+            normalize = normalize_row_by_total
+        elif normalize == 'gold':
+            normalize = normalize_row_by_row
+        else: # test
+            from AIMA import vector_add
+            column_totals = reduce(vector_add, rows)
+            def normalize(row):
+                return [1 - (cell / total) 
+                    for cell, total in zip(row, column_totals)]
+
+        rows = [normalize(row)
+            for gold_label, row in zip(gold_labels, rows)]
+        rows = numpy.array(rows)
+        pylab.pcolor(rows)
 
     def one_to_one_greedy_mapping(self):
         """Computes the one-to-one greedy mapping.  The mapping returned
@@ -132,6 +192,7 @@ class ConfusionMatrix:
         score between 0.0 and 1.0 (higher is better)."""
         return self.eval_mapping(self.many_to_one_mapping(),
                                  verbose=verbose)
+
     def eval_mapping(self, mapping, verbose=True):
         """Evaluates a mapping (dictionary of assignments between test and
         gold).  Returns a score between 0.0 and 1.0 (higher is better).
