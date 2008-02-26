@@ -6,6 +6,13 @@ import math
 from random import uniform, random, randint
 from AIMA import normalize
 
+__all__ = ['log2', 'xlog2x', 'jittered_probs',
+    'sample_simplex', 'entropy', 'entropy_of_multinomial',
+    'kl_divergence', 'variation_of_information', 'mutual_information',
+    'conditional_entropy_X_Given_Y', 'conditional_entropy_Y_Given_X',
+    'cumulative_density_function', 'sample_multinomial',
+    'sample_log_multinomial']
+
 def log2(x):
     """Returns log base 2 of a number."""
     return math.log(x, 2)
