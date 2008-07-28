@@ -11,7 +11,7 @@ __all__ = ['log2', 'xlog2x', 'jittered_probs',
     'kl_divergence', 'variation_of_information', 'mutual_information',
     'conditional_entropy_X_Given_Y', 'conditional_entropy_Y_Given_X',
     'cumulative_density_function', 'sample_multinomial',
-    'sample_log_multinomial']
+    'sample_log_multinomial', 'assert_valid_prob', 'crp']
 
 def log2(x):
     """Returns log base 2 of a number."""
@@ -191,6 +191,21 @@ def sample_log_multinomial(probs):
     maxElt = max(probs)
     expProbs = [math.exp(p - maxElt) for p in probs]
     return sample_multinomial(expProbs)
+
+def assert_valid_prob(prob, allow_zero=True):
+    """Asserts that a particular value is a probability. If allow_zero is False,
+    also asserts it is greater than 0."""
+    if not isinstance(prob, (int, float)):
+        raise TypeError("Argument must be an integer or float.")
+    assert 0 <= prob <= 1, "%s is not a valid probability." % prob
+    assert allow_zero or prob != 0, "%s is not a non-zero probability." % prob
+
+def crp(count, total, alpha):
+    """Returns the Chinese restaurant process probability of a table with
+    'count' occupants, in a restaurant with 'total' occupants,
+    with parameter alpha."""
+    count = count or alpha
+    return count / (total + alpha)
 
 if __name__ == "__main__":
     dist = [1, 3, 5]
