@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Title: Reloading all modules
 URL: http://aspn.activestate.com/ASPN/Cookbook/Python/Recipe/81731
