@@ -22,11 +22,11 @@ Known bugs:
 Please feel free to contact me at dmcc AT bigasterisk DOT com with questions,
 feature requests, patches, whatever.
 """
+from __future__ import generators
 
 __version__ = 2.1
 __author__ = 'David McClosky (dmcc+py AT bigasterisk DOT com)'
 
-from __future__ import generators
 import os, sys, time, select
 
 __all__ = ['TailedFile', 'TailInterface', 'Tailer']
