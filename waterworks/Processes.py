@@ -65,14 +65,14 @@ class Pipe:
     def close(self):
         self.pipe.tochild.close()
     def check(self, read_amount=1024, timeout=0, on_not_ready_func=None,
-              return_on_finished=True):
+              return_on_finished=True, include_stderr=False):
         # print "check()", self.command
         p_out, p_err = self.pipe.fromchild, self.pipe.childerr
         fd_out = p_out.fileno()
         fd_err = p_err.fileno()
         result = ''
         while 1:
-            rlist, _, _ = select.select([p_out], [], [], timeout)
+            rlist, _, _ = select.select([p_out, p_err], [], [], timeout)
             # print 'rlist', rlist
             if not rlist:
                 if on_not_ready_func is None:
@@ -87,11 +87,15 @@ class Pipe:
                 # print 'yield', repr(output)
                 yield output
 
+            if include_stderr and p_err in rlist:
+                output = os.read(fd_err, read_amount)
+                yield output
+
             # print 'poll', self.pipe.poll()
             if return_on_finished and self.pipe.poll() != -1:
                 # print 'poll', self.pipe.poll()
                 return
-    def process(self, data, timeout=1, verifier=None):
+    def process(self, data, timeout=1, verifier=None, close_after_feed=False):
         """Rechecks with a timeout until there is no more data coming
         from the pipe.  If there are more elaborate cues about when to
         stop reading, you may need to use check() directly.  verifier()
@@ -99,6 +103,8 @@ class Pipe:
         we will wait for more data."""
         from cStringIO import StringIO
         self.feed(data)
+        if close_after_feed:
+            self.close()
         result = ''
         while 1:
             for newdata in self.check(timeout=timeout):
