@@ -2,6 +2,26 @@
 # dictionary manipulation #
 ###########################
 
+class CounterDict(dict):
+    """Simple subclass of a dictionary to help count items:
+    
+    >>> c = CounterDict()
+    >>> c.count('a', 'sequence', 'of', 'things', 'to', 'count')
+    >>> c
+    {'a': 1, 'count': 1, 'sequence': 1, 'of': 1, 'to': 1, 'things': 1}
+    >>> c.count('more', 'things')
+    >>> c
+    {'a': 1, 'count': 1, 'sequence': 1, 'of': 1, 'to': 1, 'things': 2, 'more': 1}
+    >>> c.count('justonething')
+    >>> c
+    {'a': 1, 'count': 1, 'sequence': 1, 'of': 1, 'to': 1, 'justonething': 1, 'things': 2, 'more': 1}
+    """
+    def count(self, *keys):
+        "Count each item in the sequence 'keys' (which could be a single item)"
+        for key in keys:
+            self.setdefault(key, 0)
+            self[key] += 1
+
 def dictadd(d1, d2):
     """Add the numeric values of values in two dictionaries together in
     a functional fashion (d1 and d2 are not modified)."""
