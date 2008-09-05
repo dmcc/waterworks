@@ -1,3 +1,5 @@
+import re
+
 ###################
 # parsing helpers #
 ###################
@@ -32,6 +34,34 @@ def try_parse_date(val, default=None):
         return mx.DateTime.Parser.DateTimeFromString(val)
     except:
         return default
+
+# by George Sakkis (gsakkis at rutgers.edu)
+# http://mail.python.org/pipermail/python-list/2005-March/312004.html
+def parseSexpression(expression):
+    subexpressions,stack = [],[]
+    for token in re.split(r'([()])|\s+', expression):
+        if token == '(':
+            new = []
+            if stack:
+                stack[-1].append(new)
+            else:
+                subexpressions.append(new)
+            stack.append(new)
+        elif token == ')':
+            try: stack.pop()
+            except IndexError:
+                raise ValueError("Unbalanced right parenthesis: %s" % \
+                    expression)
+        elif token:
+            try: stack[-1].append(token)
+            except IndexError:
+                raise ValueError("Unenclosed subexpression (near %s)" % token)
+    if stack:
+        raise ValueError("Unbalanced left parenthesis: %s" % expression)
+    if len(subexpressions) > 1:
+        raise ValueError("Single s-expression expected (%d given)" % \
+            len(subexpressions))
+    return subexpressions[0]
 
 def multisplit(string_to_split, delimiters):
     """Example:
