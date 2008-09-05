@@ -213,6 +213,14 @@ class ConfusionMatrix(object):
         """Calculates the variation of information between the test and gold.  
         Lower is better, minimum is 0.0"""
         return vi(dict(self.as_confusion_items()))
+
+    # TODO needs to be checked
+    def variation_of_information_upper_bound(self):
+        """Calculates the upper bound on variation of information between the 
+        test and gold.  VI(C, C') <= log2(n) where n is the total number of
+        data point."""
+        return log2(self.total_points)
+
     def mutual_information(self):
         """Calculates the mutual information between the test and gold.  
         Higher is better, minimum is 0.0"""
