@@ -36,10 +36,13 @@ def uniformbuckets(minval, maxval, numbuckets=10, autoshrink=True):
     size = int(math.ceil(diff / float(numbuckets)))
     return range(int(minval), int(maxval) + size, size)
 
-def uniformbucketsfloat(minval, maxval, numbuckets=10):
+# TODO should use frange here
+def uniformbucketsfloat(minval, maxval, numbuckets=10, autoshrink=True):
     """Make numbuckets bucket cutoffs, each of the same size between
     minval and maxval."""
     diff = maxval - minval
+    if autoshrink and numbuckets > diff:
+        numbuckets = diff
     size = float(diff) / numbuckets
     l = []
     current = minval
@@ -50,8 +53,14 @@ def uniformbucketsfloat(minval, maxval, numbuckets=10):
 
 # uniform sized
 def guessuniformbucketsfromdata(data, numbuckets=None, autoshrink=True):
+    bucketer = uniformbuckets
+    for datum in data:
+        if isinstance(datum, float):
+            bucketer = uniformbucketsfloat
+            break
+
     numbuckets = numbuckets or (math.log10(len(data)) * 2)
-    return uniformbuckets(min(data), max(data), numbuckets, 
+    return bucketer(min(data), max(data), numbuckets, 
                           autoshrink=autoshrink)
 
 # TODO this has some problems
@@ -63,7 +72,7 @@ def guessuniformcontentsbucketsfromdata(data, numbuckets=None):
 
     cur_bucket = []
     cutoffs = []
-    for d in data:
+    for d in sorted(data):
         # print ["%.2f" % (zz * 100) for zz in cutoffs], d, len(cur_bucket)
 
         if len(cur_bucket) < items_per_bucket or d == cur_bucket[-1]:
@@ -74,6 +83,13 @@ def guessuniformcontentsbucketsfromdata(data, numbuckets=None):
             cur_bucket = [d]
 
     return cutoffs
+
+def bucket_xy_data_by_x(x, y, bucketfunc, **bucketfuncopts):
+    buckets = bucketfunc(x, **bucketfuncopts)
+    bucketdict = HistogramBucketDict(buckets)
+    for key, val in zip(x, y):
+        bucketdict.add(key, amount=val)
+    return bucketdict
 
 class HistogramBucketDict(IterableUserDict):
     """Histogram bucket dictionaries have ranges for keys.  They are
@@ -95,12 +111,15 @@ class HistogramBucketDict(IterableUserDict):
     def add(self, key, amount=1):
         """Add 'amount' items for a key.  Whichever bucket 'key' is in
         will have its count incremented by 'amount'."""
+        cutoff = self.get_bucket(key)
+        self[cutoff] += amount
+    def get_bucket(self, key):
         for cutoff in self.cutoffs:
             if key >= cutoff:
-                self[cutoff] += amount
-                break
-        else: # put it in the last bucket
-            self[self.lastcutoff] += amount
+                return cutoff
+        else: # last bucket
+            return self.lastcutoff
+        
     def add_all(self, data):
         for item in data:
             self.add(item)
@@ -162,9 +181,10 @@ class HistogramBucketDict(IterableUserDict):
         for (start, end), v in list(self.items()):
             self[start] = (v / total) * newmax
 
-def histogramify(amounts, numbuckets=None, normalize=True):
+def histogramify(amounts, numbuckets=None, normalize=True, 
+                 bucket_guesser=guessuniformbucketsfromdata):
     """Fast, one command Histogram creation for the common case."""
-    buckets = guessuniformbucketsfromdata(amounts, numbuckets=numbuckets)
+    buckets = bucket_guesser(amounts, numbuckets=numbuckets)
     h = HistogramBucketDict(buckets, amounts)
     if normalize:
         h.normalize(100)
