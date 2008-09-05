@@ -143,21 +143,49 @@ class Symbol:
     def __repr__(self):
         return "%s(%r)" % (self.__class__, self.name)
     def __eq__(self, other):
-        return self.name == other.name
+        try:
+            return self.name == other.name
+        except AttributeError:
+            return False
 
 def generic_repr(self):
     """Generic representation -- prints out the object's dictionary,
     ignoring keys that start with '_' and values that are non-false.
+    Attribute names mentioned in the attribute _not_in_repr will also
+    be ignored.
 
     Example usage:
     class A:
         def __init__(self, *whatever):
             do_things()
-
         __repr__ = generic_repr
     """
+    skip = getattr(self, '_not_in_repr', [])
     d = ', '.join('%s=%r' % item 
         for item in sorted(self.__dict__.items()) 
-        if not item[0].startswith('_') and item[1])
+        if item[0] not in skip and not item[0].startswith('_') and item[1])
     name = str(self.__class__).replace('__main__.', '')
     return "%s(%s)" % (name, d)
+
+class SimpleKeyEquality:
+    """Lets you define a _key() method which will be used for __eq__,
+    __hash__, and __cmp__.  The _key() method should return a hashable
+    key for the object e.g. a tuple of hashable objects."""
+    def __eq__(self, other):
+        try:
+            other_key = other._key()
+        except AttributeError:
+            return False
+
+        return self._key() == other_key
+    def __hash__(self):
+        return hash(self._key())
+    def __cmp__(self, other):
+        try:
+            other_key = other._key()
+        except AttributeError:
+            return -1
+
+        return cmp(self._key(), other_key)
+    def _key(self):
+        raise NotImplementedError("Must implement _key() method.")
