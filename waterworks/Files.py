@@ -184,18 +184,10 @@ def lockfile(fileobj, blocking=True, exclusive=True):
     else:
         flags = fcntl.LOCK_SH
 
-    flags |= fcntl.LOCK_NB
     if blocking:
-        while 1:
-            try:
-                fcntl.lockf(fileobj.fileno(), flags)
-            except IOError, e:
-                if e.strerror == "Resource temporarily unavailable":
-                    # sleep somewhere between 0 and 2 seconds
-                    time.sleep(random.random() * 2)
-            else:
-                break
+        fcntl.lockf(fileobj.fileno(), flags)
     else:
+        flags |= fcntl.LOCK_NB
         fcntl.lockf(fileobj.fileno(), flags)
 
 def unlockfile(fileobj):
@@ -281,4 +273,3 @@ def split_input_into_sections(input_objects, outputdir, num_divisions=20,
     current_division_file.flush()
         
     return section_size, last_section_size
-
