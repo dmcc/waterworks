@@ -122,6 +122,46 @@ class Pipe:
                 break
         return result
 
+# yes, these docs are longer than the code
+def build_command(executable_filename, options, flags, extra_options=''):
+    """Helps build command line arguments.  In our terminology, options
+    are flags that take arguments.  Flags do not take arguments.
+    
+    options is a dictionary of the form (or a list of tuples):
+        {optionname: optionvalue}
+    If optionvalue is not None or False, we will add
+        -optionname optionvalue
+    to the command line.
+
+    flags is a dictionary of the form (or a list of tuples):
+        {flagname: flagvalue}
+    If flagvalue is true, we will add
+        -flagname
+    to the command line.
+    
+    extra_options is a place for any extra unhandled options.  This is
+    here in case your options/flags are outdated.
+
+    Returns a string."""
+
+    pieces = [executable_filename]
+    if isinstance(options, dict):
+        options = options.items()
+    for value, option in options:
+        if value is not None:
+            pieces.append('-%s %s' % (option, value))
+
+    if isinstance(flags, dict):
+        flags = flags.items()
+    for value, flag in flags:
+        if value not in (None, False):
+            pieces.append('-%s' % flag)
+
+    if extra_options:
+        pieces.append(extra_options)
+
+    return ' '.join(pieces)
+
 if __name__ == "__main__":
     p = Pipe("rev")
     p.feed('splarg')
