@@ -30,7 +30,7 @@ Modified by dmcc
 import sys
 
 class ProgressBar:
-    def __init__(self, minValue = 0, maxValue = 10, totalWidth=12, 
+    def __init__(self, minValue = 0, maxValue = 10, totalWidth=75, 
                  autoreturn=True):
         self.progBar = "[]"   # This holds the progress bar string
         self.min = minValue
@@ -81,6 +81,25 @@ class ProgressBar:
     def finish(self, stream=sys.stdout):
         stream.write('\r' + ' ' * self.width + '\r')
         stream.flush()
+
+def autoprogressbar(seq, **progressbar_params):
+    """Returns an iterator over seq while displaying a progress bar of
+    the appropriate length.  Usage is simple:
+
+    for x in autoprogressbar(some_seq):
+        f(x)
+    """
+    length = len(seq)
+    bar = ProgressBar(maxValue=length, **progressbar_params)
+    for i, item in enumerate(seq):
+        bar.update_amount(i)
+        if i < length:
+            bar.display()
+        else:
+            bar.finish()
+        yield item
+
+    bar.finish()
 
 if __name__ == "__main__":
     import time, sys
