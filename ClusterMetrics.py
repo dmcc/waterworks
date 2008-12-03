@@ -3,6 +3,7 @@ from __future__ import division
 from Probably import variation_of_information as vi, \
     mutual_information as mi, log2, conditional_entropy_X_Given_Y
 from waterworks.Tools import ondemand
+from PrecRec import precision_recall_f
 from AIMA import DefaultDict
 
 class ConfusionMatrix(object):
@@ -231,6 +232,36 @@ class ConfusionMatrix(object):
         lower is better, minimum is 0.0"""
         return conditional_entropy_X_Given_Y(dict(self.as_confusion_items()))
 
+    def jaccard_index(self):
+        """Calculates the Jaccard index between test and gold, as defined
+        in Meila "Comparing Clusterings", eq 7.
+        Value is between 0 and 1, and is 1 for identical clusterings."""
+        N00,N11,N01,N10 = self.pairwise_statistics
+        return N11/(N11 + N01 + N10)
+
+    def mirkin_metric(self):
+        """Calculates the Mirkin metric (a scaled form of the Rand index)
+        as defined in Meila "Comparing Clusterings", eq. 9.
+        Value is 0 for identical clusterings and positive otherwise."""
+        N00,N11,N01,N10 = self.pairwise_statistics
+        return 2 * (N01 + N10)
+
+    def rand_index(self):
+        """Calculates the (unadjusted) Rand index, which is the
+        classification accuracy of the clustering over same/different edges,
+        as defined in Meila "Comparing Clusterings", eq. 5.
+        Value is 1 for identical clusterings and always greater than 0,
+        tending to be close to 1 in practice."""
+        N00,N11,N01,N10 = self.pairwise_statistics
+        return (N11 + N00) / (N00 + N11 + N01 + N10)
+
+    def prec_rec(self):
+        """Calculates the classification precision, recall and F-score
+        over edges, with respect to the same-cluster class."""
+        N00,N11,N01,N10 = self.pairwise_statistics
+
+        return precision_recall_f(N11, (N11 + N10), (N11 + N01))
+
     def _total_points(self):
         total = sum(count for (gold, test), count in self.as_confusion_items())
         return total
@@ -274,3 +305,4 @@ if __name__ == "__main__":
     print cm.mutual_information()
     print cm.one_to_one_optimal_mapping()
     print cm.one_to_one_optimal()
+    print cm.prec_rec()
