@@ -118,3 +118,36 @@ def window(seq, n=3, pad=None):
         ngram.pop(0)
         ngram.append(pad)
         yield tuple(ngram)
+
+def display_index_every_K_items(seq, k, output_stream=None, format='%s\n'):
+    """Provides status messages while you iterate over seq -- every k items,
+    it will print the index to output_stream which defaults to stdout.
+    format will be interpolated with the index."""
+    import sys
+    output_stream = output_stream or sys.stdout
+    for index, value in enumerate(seq):
+        if index % k == 0:
+            output_stream.write('%s\n' % index)
+            output_stream.flush()
+        yield value
+
+def display_marker_every_K_items(seq, k, marker='.', output_stream=None):
+    """Provides status messages while you iterate over seq -- every k items,
+    it will print marker to output_stream which defaults to stdout."""
+    import sys
+    output_stream = output_stream or sys.stdout
+    for index, value in enumerate(seq):
+        if index % k == 0:
+            output_stream.write(marker)
+            output_stream.flush()
+        yield value
+    output_stream.write('\n')
+
+if __name__ == "__main__":
+    def simple_generator():
+        while 1:
+            yield 1
+    s = display_marker_every_K_items(display_marker_every_K_items(simple_generator(), 100, marker='+'), 10)
+    import time
+    for x in s:
+        time.sleep(0.001) # standing in for real work
