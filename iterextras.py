@@ -128,6 +128,25 @@ def iunzip(iterable, n=None):
     return [imap(selector(index), iter_tee) 
         for index, iter_tee in izip(count(), iter_tees)]
 
+# from http://groups.google.com/group/comp.lang.python/browse_thread/thread/d364e7b16bf151c7
+# by Raymond Hettinger
+def split_on(iterable, event, start=True):
+    """Split iterable on event boundaries (either start events or stop
+    events).
+
+    >>> ' '.join(''.join(x) for x in split_on('X1X23X456X', 'X'.__eq__, True))
+    'X1 X23 X456 X'
+    >>> ' '.join(''.join(x) for x in split_on('X1X23X456X', 'X'.__eq__, False))
+    'X 1X 23X 456X'
+    """
+    def transition_counter(x, start=start, cnt=[0]):
+        before = cnt[0]
+        if event(x):
+            cnt[0] += 1
+        after = cnt[0]
+        return after if start else before
+    return (g for k, g in groupby(iterable, transition_counter))
+
 if __name__ == "__main__":
     test = zip(range(1, 10), range(21, 30), range(81, 90))
     print test
