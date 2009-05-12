@@ -1,4 +1,4 @@
-import inspect
+import inspect, types
 import unittest
 
 class A:
@@ -101,6 +101,10 @@ def obj_signature(obj):
     return (obj.__name__, filename, lineno)
 
 def new_isinstance(obj, class_or_classes):
+    # fall back to real isinstance for these
+    if not hasattr(obj, '__class__'):
+        return isinstance(obj, class_or_classes)
+
     if isinstance(class_or_classes, (tuple, list)):
         classes = class_or_classes
     else:
