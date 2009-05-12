@@ -7,6 +7,8 @@ class LazyList:
         self.iterator_exhausted = False
         self.use_partial_list = use_partial_list
     def __getitem__(self, index):
+        # TODO doesn't handle slices currently -- reads entire list whenever
+        # you ask for these!
         if not self.iterator_exhausted:
             if index < 0:
                 self._read_all()
