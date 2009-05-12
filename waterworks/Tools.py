@@ -152,7 +152,8 @@ def generic_repr(self):
     """Generic representation -- prints out the object's dictionary,
     ignoring keys that start with '_' and values that are non-false.
     Attribute names mentioned in the attribute _not_in_repr will also
-    be ignored.
+    be ignored.  The attribute _show_false is a list containing things
+    to show even if they are False.
 
     Example usage:
     class A:
@@ -161,9 +162,11 @@ def generic_repr(self):
         __repr__ = generic_repr
     """
     skip = getattr(self, '_not_in_repr', [])
+    show_false = getattr(self, '_show_false', [])
     d = ', '.join('%s=%r' % item 
         for item in sorted(self.__dict__.items()) 
-        if item[0] not in skip and not item[0].startswith('_') and item[1])
+        if item[0] not in skip and not item[0].startswith('_') and \
+           (item[1] or item[0] in show_false))
     name = str(self.__class__).replace('__main__.', '')
     return "%s(%s)" % (name, d)
 
