@@ -1,9 +1,11 @@
 """ClusterMetrics: a metric ****** of cluster metrics!"""
 from __future__ import division
+from math import sqrt
 from Probably import variation_of_information as vi, \
-    mutual_information as mi, log2, conditional_entropy_X_Given_Y
+    mutual_information as mi, log2, conditional_entropy_X_Given_Y, \
+    conditional_entropy_Y_Given_X, entropy_of_multinomial
 from waterworks.Tools import ondemand
-from PrecRec import precision_recall_f
+from PrecRec import precision_recall_f, fscore
 from AIMA import DefaultDict
 
 class ConfusionMatrix(object):
@@ -36,11 +38,24 @@ class ConfusionMatrix(object):
         return locals()
     all_test = property(**all_test())
 
+    def gold_sizes():
+        doc = "Mapping from gold cluster label to size. Calculated on demand."
+        def fget(self):
+            if self._gold_sizes is None:
+                self._gold_sizes = DefaultDict(0)
+                for gold_dict in self.by_test.values():
+                    for gold,size in gold_dict.items():
+                        self._gold_sizes[gold] += size
+            return self._gold_sizes
+        return locals()
+    gold_sizes = property(**gold_sizes())
+
     def add(self, gold, test, count=1):
         """Add count joint occurrences of gold and test."""
         self.by_test[test][gold] += count
         # invalidate cache
         self._all_gold = None
+        self._gold_sizes = None
     def as_confusion_items(self):
         """Yields ((gold, test), count) items."""
         for test, gold_dict in self.by_test.items():
@@ -215,7 +230,6 @@ class ConfusionMatrix(object):
         Lower is better, minimum is 0.0"""
         return vi(dict(self.as_confusion_items()))
 
-    # TODO needs to be checked
     def variation_of_information_upper_bound(self):
         """Calculates the upper bound on variation of information between the 
         test and gold.  VI(C, C') <= log2(n) where n is the total number of
@@ -226,6 +240,52 @@ class ConfusionMatrix(object):
         """Calculates the mutual information between the test and gold.  
         Higher is better, minimum is 0.0"""
         return mi(dict(self.as_confusion_items()))
+
+    def normalized_mutual_information(self):
+        """Normalized mutual information (Strehl and Ghosh JMLR '02
+        "Cluster Ensembles"), eq 2: mutual information normalized by
+        the square root of the product of entropies. The value is
+        between 0 and 1, and is 1 for identical clusterings."""
+        denom = (sqrt(
+            entropy_of_multinomial(self.gold_sizes.values()) *
+            entropy_of_multinomial([sum(table.values())
+                                    for table in self.by_test.values()])))
+        if denom == 0:
+            if entropy_of_multinomial(self.gold_sizes.values()) == 0:
+                #gold clustering is entirely uninformative
+                #so anything we do is good
+                return 1
+            else:
+                #induced clustering is entirely uninformative
+                return 0
+
+        return self.mutual_information() / denom
+
+    def v_measure(self, beta=1):
+        """Computes Rosenberg and Hirschberg's V-measure (EMNLP '07),
+        which ranges between 0 and 1 (1 is best). The beta parameter
+        can be used to weigh homogeneity or completeness; the default
+        is balanced harmonic mean, beta > 1 favors homogeneity."""
+        h_c = entropy_of_multinomial(self.gold_sizes.values())
+        h_k = entropy_of_multinomial(
+            [sum(table.values()) for table in self.by_test.values()])
+
+        if h_c == 0:
+            homo = 1
+        else:
+            h_c_given_k = self.conditional_entropy_gold_given_test()
+
+            homo = 1 - h_c_given_k / h_c
+
+        if h_k == 0:
+            comp = 1
+        else:
+            h_k_given_c = conditional_entropy_Y_Given_X(
+                dict(self.as_confusion_items()))
+
+            comp = 1 - h_k_given_c / h_k
+
+        return fscore(homo, comp, beta) #computes the harmonic mean
 
     def conditional_entropy_gold_given_test(self):
         """Calculates the conditional entropy of the gold given the test.  
@@ -261,6 +321,50 @@ class ConfusionMatrix(object):
         N00,N11,N01,N10 = self.pairwise_statistics
 
         return precision_recall_f(N11, (N11 + N10), (N11 + N01))
+
+    def micro_average_f(self):
+        """Evaluates the micro-average f-score. Micro-averaging
+        averages f-score for each cluster in the gold transcript,
+        weighted by the cluster size."""
+        res = 0
+        total = sum(self.gold_sizes.values())
+
+        for gold in self.all_gold:
+            fs = [self.eval_cluster_f(gold, test)[0][2]
+                  for test in self.all_test]
+            maxF = max(fs)
+            res += maxF * self.gold_sizes[gold] / total
+        return res
+
+    def macro_average_f(self):
+        """Evaluates the macro-average f-score. Macro-averaging adds
+        number matched and cluster sizes for each pair of clusters,
+        then takes the f-score at the end. Clusters are matched to
+        maximize overlap, though this does not necessarily maximize
+        the metric itself."""
+        match = 0
+        prop = 0
+        true = 0
+        for gold in self.all_gold:
+            counts = [self.eval_cluster_f(gold, test)[1]
+                      for test in self.all_test]
+            best = max(counts, key=lambda x: x[0]) #matched
+            match += best[0]
+            true += best[1]
+            prop += best[2]
+        (p,r,f) = precision_recall_f(match, true, prop)
+        return f
+
+    def eval_cluster_f(self, gold_cluster, test_cluster):
+        """Computes the clustering f-score of the gold and test cluster,
+        where prec = |overlap| / |test|, rec = |overlap| / |gold|.
+        Returns two tuples of values: the first is (prec, rec, f)
+        , and the second is (|overlap|, |gold|, |test|)."""
+        matched = self.by_test[test_cluster][gold_cluster]
+        proposed = sum(self.by_test[test_cluster].values())
+        true = self.gold_sizes[gold_cluster]
+        (p,r,f) = precision_recall_f(matched, true, proposed)
+        return (p, r, f), (matched, true, proposed)
 
     def _total_points(self):
         total = sum(count for (gold, test), count in self.as_confusion_items())
@@ -299,6 +403,7 @@ if __name__ == "__main__":
     cm.add('A', 1, 9)
     cm.add('B', 2, 9)
     cm.add('A', 2, 10)
+    print list(cm.as_confusion_items())
     print cm.one_to_one_greedy()
     print cm.eval_mapping(cm.many_to_one_mapping())
     print cm.variation_of_information()
@@ -306,3 +411,8 @@ if __name__ == "__main__":
     print cm.one_to_one_optimal_mapping()
     print cm.one_to_one_optimal()
     print cm.prec_rec()
+    print cm.micro_average_f()
+    print cm.macro_average_f()
+    print cm.mutual_information()
+    print "nmi", cm.normalized_mutual_information()
+    print cm.v_measure()
