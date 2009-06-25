@@ -236,6 +236,17 @@ class ConfusionMatrix(object):
         data point."""
         return log2(self.total_points)
 
+    def normalized_vi(self):
+        """Calculates NVI (Reichart and Rappoport '09), which is
+        VI/H(C), variation of information normalized by the entropy of
+        the true clustering. This metric has value 0 for perfect
+        clusterings and 1 for the single-cluster clustering;
+        'reasonable' clusterings have scores in between."""
+        hc = entropy_of_multinomial(self.gold_sizes.values())
+        if hc == 0:
+            return 0
+        return self.variation_of_information() / hc
+
     def mutual_information(self):
         """Calculates the mutual information between the test and gold.  
         Higher is better, minimum is 0.0"""
@@ -286,6 +297,19 @@ class ConfusionMatrix(object):
             comp = 1 - h_k_given_c / h_k
 
         return fscore(homo, comp, beta) #computes the harmonic mean
+
+    def v_beta(self):
+        """Computes the v-beta metric, a variant of V-measure, given
+        in Vlachos, Korhonen and Ghahramani (EACL '09), section
+        3. This is equal to the V-measure where beta is set to
+        |K|/|C|, the ratio of number of predicted clusters to number
+        of true clusters, and attempts to correct for V's reported
+        bias in favor of solutions with many clusters."""
+        #note that our harmonic mean is (1 + b**2) * h * c
+        #while eq 3 in Vlachos et al gives (1 + b)... therefore
+        #we take a square root here to get equivalent answers
+        b = len(self.all_test) / len(self.all_gold)
+        return self.v_measure(beta=sqrt(b))
 
     def conditional_entropy_gold_given_test(self):
         """Calculates the conditional entropy of the gold given the test.  
@@ -403,16 +427,41 @@ if __name__ == "__main__":
     cm.add('A', 1, 9)
     cm.add('B', 2, 9)
     cm.add('A', 2, 10)
+    print "gold tags", cm.all_gold
+    print "test tags", cm.all_test
     print list(cm.as_confusion_items())
-    print cm.one_to_one_greedy()
-    print cm.eval_mapping(cm.many_to_one_mapping())
-    print cm.variation_of_information()
-    print cm.mutual_information()
-    print cm.one_to_one_optimal_mapping()
-    print cm.one_to_one_optimal()
-    print cm.prec_rec()
-    print cm.micro_average_f()
-    print cm.macro_average_f()
-    print cm.mutual_information()
+    print "121g", cm.one_to_one_greedy()
+    print "m21", cm.eval_mapping(cm.many_to_one_mapping())
+    print "vi", cm.variation_of_information()
+    print "mi", cm.mutual_information()
+    print "nvi", cm.normalized_vi()
+    print "121o", cm.one_to_one_optimal_mapping()
+    print "121o", cm.one_to_one_optimal()
+    print "edge-f", cm.prec_rec()
+    print "micro-f", cm.micro_average_f()
+    print "macro-f", cm.macro_average_f()
     print "nmi", cm.normalized_mutual_information()
-    print cm.v_measure()
+    print "vm", cm.v_measure()
+    print "beta vm", cm.v_beta()
+
+    #verify nvi gets 1 for single-cluster
+    cm = ConfusionMatrix()
+    cm.add('A', 1, 10)
+    cm.add('B', 1, 10)
+    vv = cm.normalized_vi()
+    assert(vv == 1)
+
+    #verify perfection
+    cm = ConfusionMatrix()
+    cm.add('A', 1, 10)
+    cm.add('B', 2, 10)
+    print "121o", cm.one_to_one_optimal()
+    print "vi", cm.variation_of_information()
+    print "nvi", cm.normalized_vi()
+    print "edge-f", cm.prec_rec()
+    print "micro-f", cm.micro_average_f()
+    print "macro-f", cm.macro_average_f()
+    print "nmi", cm.normalized_mutual_information()
+    print "vm", cm.v_measure()
+    print "beta vm", cm.v_beta()
+
