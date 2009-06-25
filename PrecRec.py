@@ -20,7 +20,7 @@ def precision_recall(n_matched, n_gold, n_proposed):
 
 def fscore(precision, recall, beta=1.0):
     """Calculates the f-score (default is balanced f-score; beta > 1
-    favors precision), the geometric mean of precision and recall."""
+    favors precision), the harmonic mean of precision and recall."""
 
     num = (beta**2 + 1) * precision * recall
     denom = (beta**2) * precision + recall
