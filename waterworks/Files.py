@@ -61,23 +61,17 @@ def sortedfile(filename, mode='r', sortcmd='sort -n'):
 
     return tf
 
-# TODO: write mode is broken when the file doesn't exist yet
 def possibly_compressed_file(filename, mode='r'):
     from bz2 import BZ2File
-    # normalize the filename
-    filename = filename.replace('.gz', '')
-    filename = filename.replace('.bz2', '')
-    gzip_name = "%s.gz" % filename
-    bzip_name = "%s.bz2" % filename
-    if os.path.exists(filename):
-        return file(filename, mode)
-    elif os.path.exists(gzip_name): # try adding .gz and using GzipFile
-        return GzipFile(gzip_name, mode)
-    elif os.path.exists(bzip_name): # try adding .bz2 and using BZ2File
-        return BZ2File(bzip_name, mode)
+    if filename.lower().endswith('.gz'):
+        opener = GzipFile
+    elif filename.lower().endswith('.bz2'):
+        opener = BZ2File
     else:
-        raise IOError("Can't find file (or compressed version): '%s'" % \
-            filename)
+        opener = file
+
+    return opener(filename, mode)
+
 
 def read_file_with_timeout(fileobject, timeout=1):
     """Given a fileobject, we try to read from it.  If it takes longer than
@@ -209,20 +203,38 @@ def islocked(fileobj):
     return False
 
 def keepable_tempfile(mode='w+b', suffix='', prefix='tmp', dir=None, 
-    keep=False):
+    keep=False, filetype='file'):
     """If keep is True, acts like mkstemp, otherwise NamedTemporaryFile.
-    In both cases, returns you a file object (unlike mkstemp)."""
+    In both cases, returns you a file object (unlike mkstemp).
+    If filetype is dir, it will create a directory instead of a file.
+    You cannot set filetype to dir and keep to False currently."""
+    assert filetype in ('file', 'dir'), "Filetype must be 'file' or 'dir'"
+    if filetype == 'dir':
+        assert keep, "Can't currently have non-keepable temporary directories."
     import tempfile
     if keep:
-        import os
-        fd, filename = tempfile.mkstemp(suffix=suffix, prefix=prefix, dir=dir)
-        os.close(fd) # we'd open this with fdopen but for some reason, that
-                     # hides the filename
-        f = file(filename, mode)
-        return f
+        if filetype == 'file':
+            import os
+            fd, filename = tempfile.mkstemp(suffix=suffix, prefix=prefix, 
+                                            dir=dir)
+            os.close(fd) # we'd open this with fdopen but for some reason, that
+                         # hides the filename
+            f = file(filename, mode)
+            return f
+        else: # dir
+            return tempfile.mkdtemp(suffix=suffix, prefix=prefix, dir=dir)
     else:
         return tempfile.NamedTemporaryFile(mode=mode, suffix=suffix,
                                            prefix=prefix, dir=dir)
+
+def derived_named_tempfile(filename, **tempfile_options):
+    """Like keepable_tempfile, but bases the filename on an existing
+    filename."""
+    from path import path
+    filename = path(filename)
+    prefix = filename.splitext()[0].basename()
+    temp_filename = keepable_tempfile(prefix=prefix + '-', **tempfile_options)
+    return temp_filename
 
 def split_input_into_sections(input_objects, outputdir, num_divisions=20, 
     verbose=True, filespec='division%s.gz', opener=GzipFile):
