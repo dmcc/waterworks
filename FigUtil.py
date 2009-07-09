@@ -33,7 +33,10 @@ def dict_to_table(d, headers=True, x_header='', reverse=False):
     return table
 
 supported_formats = ('csv', 'tsv', 'tex', 'texbitmap', 'asciiart')
-def format_table(table, format='csv', outputstream=sys.stdout):
+def format_table(table, format='csv', outputstream=sys.stdout, **extra_options):
+    if isinstance(table, dict):
+        table = dict_to_table(table)
+
     if format in ('csv', 'tsv'):
         import csv
         dialect = {'csv' : csv.excel, 'tsv' : csv.excel_tab}[format]
@@ -48,7 +51,7 @@ def format_table(table, format='csv', outputstream=sys.stdout):
         print >>outputstream, TeXTable.make_tex_bitmap(table, has_header=True)
     elif format == 'asciiart':
         from texttable import Texttable
-        texttable = Texttable()
+        texttable = Texttable(**extra_options)
         texttable.add_rows(table)
         print >>outputstream, texttable.draw()
     else:
