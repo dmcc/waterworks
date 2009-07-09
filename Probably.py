@@ -11,7 +11,8 @@ __all__ = ['log2', 'xlog2x', 'jittered_probs',
     'kl_divergence', 'variation_of_information', 'mutual_information',
     'conditional_entropy_X_Given_Y', 'conditional_entropy_Y_Given_X',
     'cumulative_density_function', 'sample_multinomial',
-    'sample_log_multinomial', 'assert_valid_prob', 'crp']
+    'sample_log_multinomial', 'add_lambda_and_normalize',
+    'assert_valid_prob', 'crp']
 
 def log2(x):
     """Returns log base 2 of a number."""
@@ -192,20 +193,14 @@ def sample_log_multinomial(probs):
     expProbs = [math.exp(p - maxElt) for p in probs]
     return sample_multinomial(expProbs)
 
-def assertProb(prob, zero=True):
-    """Asserts that a particular value is a probability. If zero is False,
-    also asserts it is greater than 0."""
-    assert((prob > 0 or (zero and prob == 0))
-           and prob <= 1), "%f is not a probability" % prob
-
-def crp(count, total, alpha):
-    """Returns the Chinese restaurant process probability of a table with
-    'count' occupants, in a restaurant with 'total' occupants,
-    with parameter alpha."""
-    if count == 0:
-        return alpha / (total + alpha)
-    else:
-        return count / (total + alpha)
+def add_lambda_and_normalize(probs, l=1e-12):
+    """Add l to each element in probs, then return the normalized sequence."""
+    total = 0
+    new_probs = []
+    for prob in probs:
+        new_probs.append(prob + l)
+        total += prob + l
+    return [prob / total for prob in new_probs]
 
 def assert_valid_prob(prob, allow_zero=True):
     """Asserts that a particular value is a probability. If allow_zero is False,
