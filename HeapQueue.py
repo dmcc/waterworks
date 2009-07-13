@@ -1,7 +1,8 @@
+"""A more object-oriented wrapper of the heapq module."""
 import heapq
 
 class HeapQueue:
-    """A more object-oriented way of doing a heapq"""
+    """Object-oriented way of maintaining heap queue with the heapq module."""
     def __init__(self, initial_list=None):
         """Create a heap queue, optionally from an initial list."""
         self._heap = initial_list or []

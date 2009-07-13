@@ -1,3 +1,4 @@
+"""Lets you change the title of your terminal in *NIX."""
 import sys
 
 template = "\033]0;%s\007"

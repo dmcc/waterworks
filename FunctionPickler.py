@@ -1,3 +1,7 @@
+"""Allows you to create pickle-able references to functions.  Of course,
+this is with the understanding that the underlying implementation of
+that function can change, so don't use this if you require future-proof
+results."""
 from pickle import PicklingError
 
 class PickledFunction:

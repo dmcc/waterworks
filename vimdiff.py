@@ -1,3 +1,6 @@
+"""Simple interface for visualizing differences between two strings using
+vimdiff (configurable to use other differs too)"""
+
 from waterworks.Files import keepable_tempfile
 def vimdiff(*strings, **options):
     """Given a list of strings, visualizes the differences between them
