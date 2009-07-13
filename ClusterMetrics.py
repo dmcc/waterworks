@@ -1,4 +1,4 @@
-"""ClusterMetrics: a metric ****** of cluster metrics!"""
+"""ClusterMetrics: a metric cluster**** of cluster metrics!"""
 from __future__ import division
 from math import sqrt
 from Probably import variation_of_information as vi, \
@@ -6,6 +6,8 @@ from Probably import variation_of_information as vi, \
     conditional_entropy_Y_Given_X, entropy_of_multinomial
 from waterworks.Tools import ondemand
 from PrecRec import precision_recall_f, fscore
+
+# TODO switch to waterworks.Dictionaries.TwoLevelCounterDict
 from AIMA import DefaultDict
 
 class ConfusionMatrix(object):
