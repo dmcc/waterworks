@@ -162,6 +162,17 @@ def build_command(executable_filename, options, flags, extra_options=''):
 
     return ' '.join(pieces)
 
+def search_and_destroy(host, pid, signal=15):
+    """Kills a PID on a specific host.  If the host is not this one,
+    we'll ssh to that host."""
+    import socket
+
+    thismachine = socket.getfqdn()
+    if host == thismachine:
+        os.kill(pid, signal)
+    else:
+        os.system('ssh %s "kill -%d %d"' % (host, signal, pid))
+
 if __name__ == "__main__":
     p = Pipe("rev")
     p.feed('splarg')
