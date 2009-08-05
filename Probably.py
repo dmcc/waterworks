@@ -87,7 +87,7 @@ def kl_divergence(p, q):
     bits = 0
     for prob_p, prob_q in zip(p, q):
         if prob_q > 0:
-            bits -= prob_p * log2(prob_p / prob_q)
+            bits += prob_p * log2(prob_p / prob_q)
         else:
             raise ValueError("KL divergence isn't well defined if q sequence contains a 0.")
     return bits
