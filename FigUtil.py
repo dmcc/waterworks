@@ -34,6 +34,12 @@ def dict_to_table(d, headers=True, x_header='', reverse=False):
 
 supported_formats = ('csv', 'tsv', 'tex', 'texbitmap', 'asciiart')
 def format_table(table, format='csv', outputstream=sys.stdout, **extra_options):
+    """table can be a table from dict_to_table() or a dictionary.
+    The dictionary can have either a single value as a key (for a
+    one-dimensional table) or 2-tuples (for two-dimensional tables).
+    format is currently one of csv, tsv, tex, texbitmap, or asciiart.
+    Values for texbitmap should be floats between 0 and 1 and the output
+    will be the TeX code for a large-pixeled bitmap."""
     if isinstance(table, dict):
         table = dict_to_table(table)
 
@@ -48,7 +54,8 @@ def format_table(table, format='csv', outputstream=sys.stdout, **extra_options):
         print >>outputstream, TeXTable.texify(table, has_header=True)
     elif format == 'texbitmap':
         import TeXTable
-        print >>outputstream, TeXTable.make_tex_bitmap(table, has_header=True)
+        extra_options.setdefault('has_header', True)
+        print >>outputstream, TeXTable.make_tex_bitmap(table, **extra_options)
     elif format == 'asciiart':
         from texttable import Texttable
         texttable = Texttable(**extra_options)
@@ -70,4 +77,4 @@ if __name__ == "__main__":
                          ('add-0', '24') : 9,
                          ('add-1', '01') : 10,
                          ('add-1', '22') : 11,
-                         ('add-1', '24') : 12,}), format='tex')
+                         ('add-1', '24') : 12,}), format='tsv')
