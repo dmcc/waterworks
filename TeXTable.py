@@ -38,20 +38,29 @@ def texify(table, compact=1, has_header=False, hlines=True, vlines=True):
 
     return ''.join(s)
 
-def _greyify_cell(cell):
-    if isinstance(cell, float):
-        return r'\cellcolor[gray]{%0.3f}' % cell
+def greyify_cell(cell, white_is_1=False, value_formatter=None):
+    if isinstance(cell, (float, int)) and 0 <= cell <= 1:
+        if not white_is_1:
+            cell = 1 - cell
+        result = r'\cellcolor[gray]{%0.3f}' % cell
+        if value_formatter:
+            result += ' ' + str(value_formatter(cell))
+        return result
     else:
         return cell
 
 # XXX TODO more docs
-def make_tex_bitmap(table, has_header=False):
+def make_tex_bitmap(table, has_header=False, white_is_1=True, 
+                    value_formatter=None):
     """All floats will be converted to their grey values.  You will need
     to include the LaTeX package colortbl:
 
         \usepackage{colortbl}
     """
-    rows = [[_greyify_cell(cell) for cell in row] for row in table]
+    rows = [[greyify_cell(cell, white_is_1=white_is_1, 
+                          value_formatter=value_formatter) 
+                for cell in row] 
+            for row in table]
     return texify(rows, has_header=has_header)
 
 if __name__ == "__main__":
