@@ -23,12 +23,15 @@ def edit_distance(a, b):
             
     return current[n]
 
-# TODO: should be a generator
 def power_set(seq):
     """Returns the power set of an (indexable) sequence."""
-    return seq \
-           and power_set(seq[1:]) + [seq[:1] + y for y in power_set(seq[1:])] \
-           or [seq]
+    if seq:
+        for s in power_set(seq[1:]):
+            yield s
+        for s in (seq[:1] + y for y in power_set(seq[1:])):
+            yield s
+    else:
+        yield seq
 
 # TODO the following two functions should be more similar
 # also, they should work the same way as the real max and min in terms
