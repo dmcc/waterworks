@@ -130,6 +130,22 @@ def dictmultiply(d, multiplier, dict=dict):
     return dict((key, value * multiplier)
         for key, value in d.items())
 
+def dictmax(d1, d2):
+    """Returns a new dictionary with the union of the keys found in d1 and d2
+    and the values the maximum value."""
+    new_dict = {}
+    for key, value1 in d1.items():
+        if key in d2:
+            new_dict[key] = max(value1, d2[key])
+        else:
+            new_dict[key] = value1
+
+    # now do keys only in d2
+    for key, value2 in d2.items():
+        if key not in d1:
+            new_dict[key] = value2
+    return new_dict
+
 def countdict_to_pairs(counts, limit=None):
     """Convert a dictionary from { anything : counts } to a list of at
     most 'limit' pairs (or all if limit is None), sorted from highest
