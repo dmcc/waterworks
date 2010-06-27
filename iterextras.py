@@ -144,7 +144,10 @@ def split_on(iterable, event, start=True):
         if event(x):
             cnt[0] += 1
         after = cnt[0]
-        return after if start else before
+        if start:
+            return after
+        else:
+            return before
     return (g for k, g in groupby(iterable, transition_counter))
 
 if __name__ == "__main__":
