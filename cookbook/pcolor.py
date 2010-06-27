@@ -79,8 +79,9 @@ def get_color_grey(a,cmin,cmax):
     except ZeroDivisionError: a=0.5 # cmax == cmin
     return '#%02x%02x%02x' % (int(255*a),int(255*a),int(255*a))
 
-def pcolor_matrix_pil(A,fname='tmp.png',do_outline=0,
-                      height=300,width=300,colorfunc=get_color_grey):
+def pcolor_matrix_pil(A, fname='tmp.png', do_outline=0,
+                      height=300, width=300, colorfunc=get_color_grey,
+                      value_range=None):
     """\
     Use a matlab-like 'pcolor' function to display the large elements
     of a matrix using the Python Imaging Library.
@@ -103,12 +104,18 @@ def pcolor_matrix_pil(A,fname='tmp.png',do_outline=0,
     draw = ImageDraw.Draw(img)
 
     n,m = A.shape
-    mina = min(min(A)) # this apparently doesn't work, for loops added --dmcc
-    maxa = max(max(A))
-    for i in range(n):
-        for j in range(m):
-            mina = min(A[i,j],mina)
-            maxa = max(A[i,j],maxa)
+    # this apparently doesn't work with new numpy, for loops added --dmcc
+    # mina = min(min(A))
+    # maxa = max(max(A))
+    if value_range is not None:
+        mina, maxa = value_range
+    else:
+        mina = A[0,0]
+        maxa = A[0,0]
+        for i in range(n):
+            for j in range(m):
+                mina = min(A[i,j], mina)
+                maxa = max(A[i,j], maxa)
 
     if n>width or m>height:
         raise "Rectangle too big %d %d %d %d" % (n,m,width,height)
