@@ -1,3 +1,5 @@
+"""Collection of functions and classes for working on file streams"""
+
 import sys
 from cStringIO import StringIO
 

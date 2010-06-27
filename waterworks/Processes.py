@@ -1,3 +1,5 @@
+"""Collection of functions and classes for working on system processes."""
+
 import select, os, sys
 from popen2 import Popen3
 

@@ -1,3 +1,4 @@
+"""A version of isinstance that handles module reload()s better."""
 import inspect, types
 
 def obj_signature(obj):

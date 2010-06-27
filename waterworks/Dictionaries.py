@@ -1,6 +1,4 @@
-###########################
-# dictionary manipulation #
-###########################
+"""Collection of functions and classes for working on dictionaries."""
 
 try:
     from collections import defaultdict

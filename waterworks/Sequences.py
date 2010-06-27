@@ -1,6 +1,5 @@
-#############
-# sequences #
-#############
+"""Collection of functions and classes for working on sequences (lists,
+tuples, etc.)."""
 
 # from http://www.hetland.org/python/distance.py
 def edit_distance(a, b):

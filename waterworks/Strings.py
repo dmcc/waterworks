@@ -1,8 +1,6 @@
-import re
+"""Collection of functions and classes for working on strings."""
 
-###################
-# parsing helpers #
-###################
+import re
 
 def try_parse_int(val, default=None):
     """Attempt to parse a string as an integer.  If parsing fails,
@@ -77,10 +75,6 @@ def multisplit(string_to_split, delimiters):
     splitted = splitter_re.split(string_to_split)
     return [splittee for splittee in splitted 
         if splittee and splittee not in delimiters]
-
-###########
-# strings #
-###########
 
 def zfill_by_num(x, num_to_fill_to):
     """zfill with an example, i.e. give it a number of the length (string

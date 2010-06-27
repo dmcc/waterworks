@@ -1,10 +1,8 @@
+"""Collection of functions and classes for working on files."""
+
 from __future__ import nested_scopes
 import os, sys, pipes
 from gzip import GzipFile
-
-#########
-# files #
-#########
 
 def is_filelike(obj, modes_needed='rw'):
     """Returns whether obj has some of the necessary methods for a
