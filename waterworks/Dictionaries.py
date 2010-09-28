@@ -6,59 +6,69 @@ try:
 except ImportError:
     _py25_or_better = False
 
-if _py25_or_better:
-    class CounterDict(dict):
-        """Simple subclass of a dictionary to help count items:
-        
-        >>> c = CounterDict()
-        >>> c.count('a', 'sequence', 'of', 'things', 'to', 'count')
-        >>> c
-        {'a': 1, 'count': 1, 'sequence': 1, 'of': 1, 'to': 1, 'things': 1}
-        >>> c.count('more', 'things')
-        >>> c
-        {'a': 1, 'count': 1, 'sequence': 1, 'of': 1, 'to': 1, 'things': 2, 'more': 1}
-        >>> c.count('justonething')
-        >>> c
-        {'a': 1, 'count': 1, 'sequence': 1, 'of': 1, 'to': 1, 'justonething': 1, 'things': 2, 'more': 1}
-        >>> c.scale(5)                                                                  >>> c
-        {'a': 5, 'count': 5, 'sequence': 5, 'of': 5, 'to': 5, 'justonething': 5, 'things': 10, 'more': 5}
-        >>> c2 = CounterDict()
-        >>> c2.count_many_times('a', 3)
-        >>> c2
-        {'a': 3}
-        >>> c.merge(c2)
-        >>> c
-        {'a': 8, 'count': 5, 'sequence': 5, 'of': 5, 'to': 5, 'justonething': 5, 'things': 10, 'more': 5}
-        """
-        def count(self, *keys):
-            "Count each item in the sequence 'keys' (which could be a single item)"
-            for key in keys:
-                self.setdefault(key, 0)
-                self[key] += 1
-        def count_many_times(self, key, count):
-            "Count an item 'count' times."
+# TODO this will convert to a collections.Counter at some point...
+class CounterDict(dict):
+    """Simple subclass of a dictionary to help count items:
+    
+    >>> c = CounterDict()
+    >>> c.count('a', 'sequence', 'of', 'things', 'to', 'count')
+    >>> c
+    {'a': 1, 'count': 1, 'sequence': 1, 'of': 1, 'to': 1, 'things': 1}
+    >>> c.count('more', 'things')
+    >>> c
+    {'a': 1, 'count': 1, 'sequence': 1, 'of': 1, 'to': 1, 'things': 2, 'more': 1}
+    >>> c.count('justonething')
+    >>> c
+    {'a': 1, 'count': 1, 'sequence': 1, 'of': 1, 'to': 1, 'justonething': 1, 'things': 2, 'more': 1}
+    >>> c.scale(5)                                                                  >>> c
+    {'a': 5, 'count': 5, 'sequence': 5, 'of': 5, 'to': 5, 'justonething': 5, 'things': 10, 'more': 5}
+    >>> c2 = CounterDict()
+    >>> c2.count_many_times('a', 3)
+    >>> c2
+    {'a': 3}
+    >>> c.merge(c2)
+    >>> c
+    {'a': 8, 'count': 5, 'sequence': 5, 'of': 5, 'to': 5, 'justonething': 5, 'things': 10, 'more': 5}
+    """
+    def count(self, *keys):
+        "Count each item in the sequence 'keys' (which could be a single item)"
+        for key in keys:
             self.setdefault(key, 0)
-            self[key] += count
-        def merge(self, *otherdicts):
-            """Merge (add) the counts from other dictionaries into this one."""
-            for otherdict in otherdicts:
-                for key, value in otherdict.items():
-                    self.setdefault(key, 0)
-                    self[key] += value
-        def __add__(self, other):
-            """Non-destructive add, returns a new CounterDict"""
-            new_counterdict = self.__class__()
-            new_counterdict.merge(self)
-            new_counterdict.merge(other)
-            return new_counterdict
-        def __iadd__(self, other):
-            """Destructive add, returns None"""
-            self.merge(other)
-        def scale(self, multiplier):
-            """Multiplies all counts by multiplier."""
-            for key in list(self.keys()):
-                self[key] *= multiplier
+            self[key] += 1
+    def count_many_times(self, key, count):
+        "Count an item 'count' times."
+        self.setdefault(key, 0)
+        self[key] += count
+    def merge(self, *otherdicts):
+        """Merge (add) the counts from other dictionaries into this one."""
+        for otherdict in otherdicts:
+            for key, value in otherdict.items():
+                self.setdefault(key, 0)
+                self[key] += value
+    def __add__(self, other):
+        """Non-destructive add, returns a new CounterDict"""
+        new_counterdict = self.__class__()
+        new_counterdict.merge(self)
+        new_counterdict.merge(other)
+        return new_counterdict
+    def __iadd__(self, other):
+        """Destructive add, returns None"""
+        self.merge(other)
+    def scale(self, multiplier):
+        """Multiplies all counts by multiplier."""
+        for key in list(self.keys()):
+            self[key] *= multiplier
+    def most_common(self, n=None):
+        """Returns a list of the n most common elements and their counts.
+        Returns all elements and counts if n is None.
+        (see collections.Counter.most_common)"""
+        items = sorted(self.items(), key=lambda (item, count): (-count, item))
+        if n is not None:
+            return items[:n]
+        else:
+            return items
 
+if _py25_or_better:
 # these doctests probably don't work due to dictionary random shuffling
     class TwoLevelCounterDict(defaultdict):
         """Dictionary of CounterDict objects.
