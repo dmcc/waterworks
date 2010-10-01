@@ -67,6 +67,9 @@ class CounterDict(dict):
             return items[:n]
         else:
             return items
+    def entropy(self):
+        from Probably import entropy_of_multinomial
+        return entropy_of_multinomial(self.values())
 
 if _py25_or_better:
 # these doctests probably don't work due to dictionary random shuffling
