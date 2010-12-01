@@ -85,14 +85,21 @@ def find_indices_of_unique_items(seq, sorted=True):
 
     return keys, nonunique
 
-def separate_by_pred(pred, iterable):
+def separate_by_pred(pred, iterable, key=None):
+    """Splits an iterable by a predicate into two lists depending on the
+    predicate's truth value.  The first list is where the predicate holds.
+    The second list is where it does not.  Optionally takes a key which
+    can transform each element in the iterable."""
     yes = []
     no = []
     for elt in iterable:
         if pred(elt):
-            yes.append(elt)
+            lst = yes
         else:
-            no.append(elt)
+            lst = no
+        if key:
+            elt = key(elt)
+        lst.append(elt)
     return yes, no
 
 def make_ranges(length, step):

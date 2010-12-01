@@ -150,6 +150,16 @@ def split_on(iterable, event, start=True):
             return before
     return (g for k, g in groupby(iterable, transition_counter))
 
+def all_pairs(objects):
+    """Yields pairs of all objects.  Each pair is only listed once (i.e.
+    if we list (a, b) we won't also list (b, a).  Objects in the list
+    must implement comparisons for this to work."""
+    for obj1 in objects:
+        for obj2 in objects:
+            if obj2 <= obj1:
+                continue
+            yield (obj1, obj2)
+
 if __name__ == "__main__":
     test = zip(range(1, 10), range(21, 30), range(81, 90))
     print test
