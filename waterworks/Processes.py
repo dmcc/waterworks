@@ -1,15 +1,16 @@
 """Collection of functions and classes for working on system processes."""
 
 import select, os, sys
-from popen2 import Popen3
+import subprocess
 
 def bettersystem(command, stdout=None, stderr=None):
     """Select-based version of commands.getstatusoutput.  stdout and stderr
     are stream or stream-like objects.  Returns the exit status."""
     stdout = stdout or sys.stdout
     stderr = stderr or sys.stderr
-    p = Popen3(command, capturestderr=True)
-    p_out, p_err = p.fromchild, p.childerr
+    p = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, 
+        stderr=subprocess.PIPE, close_fds=True)
+    p_out, p_err = p.stdout, p.stderr
     fd_out = p_out.fileno()
     fd_err = p_err.fileno()
 
@@ -59,6 +60,7 @@ def selectbasedreader(pollobjs, read_amount=1024, timeout=0.1):
 class Pipe:
     """Captures some common behaviors about running data through a pipe."""
     def __init__(self, command):
+        from popen2 import Popen3
         self.pipe = Popen3(command, capturestderr=True)
         self.command = command
     def feed(self, data):
