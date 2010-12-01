@@ -22,8 +22,8 @@ def fscore(precision, recall, beta=1.0):
     """Calculates the f-score (default is balanced f-score; beta > 1
     favors precision), the harmonic mean of precision and recall."""
 
-    num = (beta**2 + 1) * precision * recall
-    denom = (beta**2) * precision + recall
+    num = (beta ** 2 + 1) * precision * recall
+    denom = (beta ** 2) * precision + recall
     if denom == 0:
         return 0.0
     else:
@@ -32,10 +32,15 @@ def fscore(precision, recall, beta=1.0):
 def precision_recall_f(n_matched, n_gold, n_proposed, beta=1.0):
     """Calculates precision, recall and f-score."""
 
-    prec,rec = precision_recall(n_matched, n_gold, n_proposed)
+    prec, rec = precision_recall(n_matched, n_gold, n_proposed)
     f = fscore(prec, rec, beta=beta)
 
-    return prec,rec,f
+    return prec, rec, f
+
+def fscore_from_components(n_matched, n_gold, n_proposed, beta=1.0):
+    """Calculates f-score from the number of matched, gold, and proposed
+    items instead of precision and recall.  See fscore()."""
+    return precision_recall_f(n_matched, n_gold, n_proposed, beta=beta)[2]
 
 if __name__ == "__main__":
     print precision_recall(1, 10, 1)
