@@ -93,7 +93,7 @@ def pairwise(iterable, pad=False):
     else:
         return izip(a, b)
 
-# the following are written by dmcc -- not in the real iterextras
+# the following are written or added by dmcc -- not in the real iterextras
 def batch(iterable, batchsize=2):
     """Yield a list of (up to) batchsize items at a time.  The last
     element will be shorter if there are items left over.
@@ -107,13 +107,13 @@ def batch(iterable, batchsize=2):
     if current:
         yield current
 
-import operator
 def iunzip(iterable, n=None):
     """Takes an iterator that yields n-tuples and returns n iterators
     which index those tuples.  This function is the reverse of izip().
     n is the length of the n-tuple and will be autodetected if not
     specified.  If the iterable contains tuples of differing sizes,
     the behavior is undefined."""
+    import operator
     # a braindead implementation for now (since it relies on tee() which is
     # braindead in this module (but not in Python 2.4+))
     iterable = iter(iterable) # ensure we're dealing with an iterable

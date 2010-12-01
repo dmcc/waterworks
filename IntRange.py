@@ -1,7 +1,7 @@
 """Integer Range Parser and Generator"""
 # TODO docs coming soon, for now we have examples
 import re
-from Utility import multisplit
+from waterworks.Strings import multisplit
 
 def parse(string_to_parse, range_markers=(r'-', r'\.\.'), 
           range_delimiters=(',', ' ')):
