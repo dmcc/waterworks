@@ -167,7 +167,7 @@ class ConfusionMatrix(object):
     def one_to_one_optimal_mapping(self):
         """Computes the one-to-one optimal mapping using the Hungarian 
         algorithm.  The mapping returned is a dictionary of {test : gold}"""
-        import pyung
+        from cookbook.hungarian_method import hungarian_method
         all_gold = set()
         for (gold, test), count in self.as_confusion_items():
             all_gold.add(gold)
@@ -182,7 +182,7 @@ class ConfusionMatrix(object):
         for x in range(len(all_gold) - len(all_test)):
             neg_confusion_array.append([0] * len(all_gold))
 
-        mapping = pyung.hungarian_method(neg_confusion_array)
+        mapping = hungarian_method(neg_confusion_array)
         mapping_dict = {}
         for test_index, gold_index in mapping:
             try:
