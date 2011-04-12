@@ -56,7 +56,8 @@ def make_tex_bitmap(table, has_header=False, white_is_1=True,
     to include the LaTeX package colortbl:
 
         \usepackage{colortbl}
-    """
+
+    has_header is passed to texify."""
     rows = [[greyify_cell(cell, white_is_1=white_is_1, 
                           value_formatter=value_formatter) 
                 for cell in row] 
