@@ -162,7 +162,25 @@ class HistogramBucketDict(IterableUserDict):
         maxkeylength = 0
         maxvalue = 0
         for k, v in items:
-            ranges[k] = "%s-%s" % (k[1], k[0])
+            if k[1]:
+                low = k[1]
+                if low == int(low):
+                    low = str(int(low))
+                else:
+                    low = '%.3f' % k[1]
+            else:
+                low = '-inf'
+
+            if k[0]:
+                high = k[0]
+                if high == int(high):
+                    high = str(int(high))
+                else:
+                    high = '%.3f' % k[0]
+            else:
+                high = 'inf'
+
+            ranges[k] = "%s-%s" % (low, high)
             maxkeylength = max(maxkeylength, len(ranges[k]))
             maxvalue = max(maxvalue, v)
 
