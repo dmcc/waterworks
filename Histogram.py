@@ -254,5 +254,31 @@ def test_buckets():
     gnuplot_histograms([h1, h2, h3, h4], ['log 10', 'log 30', 
                                           'uniform 10', 'uniform 30'])
 
+def autobucket_from_stdin():
+    """Main function for simple automatic bucketing and gnuplot visualization.
+    Accepts an optional argument (number of buckets), otherwise attempts to
+    guess the number of buckets from the size of your data.  stdin should 
+    include one value (integer or float) per line."""
+    import sys
+    try:
+        numbuckets = int(sys.argv[-1])
+    except:
+        numbuckets = None
+
+    values = []
+    for line in sys.stdin:
+        if line.strip():
+            values.append(float(line))
+    print "Read", len(values), "values from stdin."
+    print "Min:", min(values)
+    print "Max:", max(values)
+
+    buckets = guessuniformcontentsbucketsfromdata(values, numbuckets=numbuckets)
+    print "Cutoffs:", buckets
+    hist = HistogramBucketDict(buckets)
+    hist.add_all(values)
+    print hist
+    gnuplot_histograms([hist], ['Values'])
+
 if __name__ == "__main__":
-    test_buckets()
+    autobucket_from_stdin()
