@@ -1,11 +1,10 @@
 """Tools for creating tables and figures in papers."""
-from sets import Set
 import sys
 
 def dict_to_table(d, headers=True, x_header='', reverse=False):
     """Convert dict with (x, y) as keys to a 2D table."""
-    all_x = Set()
-    all_y = Set()
+    all_x = set()
+    all_y = set()
     for x, y in d.keys():
         all_x.add(x)
         all_y.add(y)
