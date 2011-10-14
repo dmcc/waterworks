@@ -152,7 +152,28 @@ def display_marker_every_K_items(seq, k, marker='.', output_stream=None):
         yield value
     output_stream.write('\n')
 
+def all_pairs(seq):
+    """Yields all unique pairs of items in the list.  That is, each set of
+    unique items in seq will be yielded exactly once:
+
+    >>> for i in all_pairs(range(4)):
+    ...     print i
+    ... 
+    (0, 1)
+    (0, 2)
+    (0, 3)
+    (1, 2)
+    (1, 3)
+    (2, 3)
+    """
+    for i, item1 in enumerate(seq):
+        for j, item2 in enumerate(seq):
+            if i < j:
+                yield (item1, item2)
+
 if __name__ == "__main__":
+    print sorted(all_pairs(range(10)))
+    
     def simple_generator():
         while 1:
             yield 1
