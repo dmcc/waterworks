@@ -6,6 +6,14 @@ class LazyList:
         self.iterator = iterator
         self.iterator_exhausted = False
         self.use_partial_list = use_partial_list
+    def __iter__(self):
+        i = 0
+        while 1:
+            try:
+                yield self[i]
+            except IndexError:
+                raise StopIteration
+            i += 1
     def __getitem__(self, index):
         # TODO doesn't handle slices currently -- reads entire list whenever
         # you ask for these!
