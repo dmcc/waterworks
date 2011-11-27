@@ -1,6 +1,7 @@
 """Collection of functions and classes for working on strings."""
 
 import re
+pretty_time_parsing_regex = re.compile(r'(?:(\d+)d)?(?:(\d+)h)?(?:(\d+)m)?(?:(\d+)s)?')
 
 def try_parse_int(val, default=None):
     """Attempt to parse a string as an integer.  If parsing fails,
@@ -88,7 +89,7 @@ def zfill_by_num(x, num_to_fill_to):
 
 def pretty_time_range(diff, show_seconds=True):
     """Given a number of seconds, returns a string attempting to represent
-    it as shortly as possible.
+    it as shortly as possible.  Only handles seconds in integers.
     
     >>> pretty_time_range(1)
     '1s'
@@ -120,3 +121,40 @@ def pretty_time_range(diff, show_seconds=True):
         if show_seconds: str = '%ss' % seconds
         else: str = '0m'
     return str
+
+def parse_pretty_time_range(text):
+    """Given a pretty time range from pretty_time_range() (e.g. "7s", "35m", "2d12h5s"),
+    returns the number of seconds.
+    
+    >>> parse_pretty_time_range('1s')
+    1
+    >>> parse_pretty_time_range('10s')
+    10
+    >>> parse_pretty_time_range('1m40s')
+    100
+    >>> parse_pretty_time_range('16m40s')
+    1000
+    >>> parse_pretty_time_range('2h46m40s')
+    10000
+    >>> parse_pretty_time_range('1d3h46m40s')
+    100000
+    """
+    match = pretty_time_parsing_regex.match(text)
+    total_seconds = 0
+    if match:
+        days, hours, minutes, seconds = match.groups()
+        if days:
+            total_seconds += int(days) * 86400
+        if hours:
+            total_seconds += int(hours) * 3600
+        if minutes:
+            total_seconds += int(minutes) * 60
+        if seconds:
+            total_seconds += int(seconds)
+        return total_seconds
+    else:
+        raise ValueError("Couldn't parse %r" % text)
+
+if __name__ == "__main__":
+    import doctest
+    doctest.testmod()
