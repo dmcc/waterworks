@@ -59,7 +59,7 @@ def sortedfile(filename, mode='r', sortcmd='sort -n'):
 
     return tf
 
-def possibly_compressed_file(filename, mode='r'):
+def possibly_compressed_file(filename, mode='r', opener_args=None):
     from bz2 import BZ2File
     if filename.lower().endswith('.gz'):
         opener = GzipFile
@@ -68,7 +68,9 @@ def possibly_compressed_file(filename, mode='r'):
     else:
         opener = file
 
-    return opener(filename, mode)
+    opener_args = opener_args or {}
+    opener_args = opener_args.get(opener, {})
+    return opener(filename, mode, **opener_args)
 
 
 def read_file_with_timeout(fileobject, timeout=1):
