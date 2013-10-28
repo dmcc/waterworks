@@ -155,6 +155,10 @@ def parse_pretty_time_range(text):
     else:
         raise ValueError("Couldn't parse %r" % text)
 
+def sumstring(s):
+    """Sum up a string containing only numbers. Whitespace is ignored but this function is not otherwise very robust."""
+    return sum(map(float, s.split()))
+
 if __name__ == "__main__":
     import doctest
     doctest.testmod()
