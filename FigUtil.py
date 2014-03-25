@@ -37,8 +37,12 @@ def format_table(table, format='csv', outputstream=sys.stdout, **extra_options):
     The dictionary can have either a single value as a key (for a
     one-dimensional table) or 2-tuples (for two-dimensional tables).
     format is currently one of csv, tsv, tex, texbitmap, or asciiart.
-    Values for texbitmap should be floats between 0 and 1 and the output
-    will be the TeX code for a large-pixeled bitmap."""
+    Values for texbitmap should be floats between 0 and 1 and the
+    output will be the TeX code for a large-pixeled bitmap. For
+    format='texbitmap', you can pass the option has_header=True to make
+    the first row look like a header.  If format='asciiart', you can
+    pass the option center=True. Remaining extra_options are typically
+    passed along to the actual renderers."""
     if isinstance(table, dict):
         table = dict_to_table(table)
 
@@ -57,8 +61,13 @@ def format_table(table, format='csv', outputstream=sys.stdout, **extra_options):
         print >>outputstream, TeXTable.make_tex_bitmap(table, **extra_options)
     elif format == 'asciiart':
         from texttable import Texttable
+        center = extra_options.pop('center', False)
         texttable = Texttable(**extra_options)
+        num_cols = len(table[0])
+        texttable.set_cols_dtype(['t'] * num_cols)
         texttable.add_rows(table)
+        if center:
+            texttable.set_cols_align(['l'] + ['c'] * (num_cols - 1))
         print >>outputstream, texttable.draw()
     else:
         raise ValueError("Unsupported format: %r (supported formats: %s)" % \
