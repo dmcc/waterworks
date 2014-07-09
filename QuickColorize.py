@@ -33,11 +33,11 @@ colors_defined = {}
 def colorize(text):
     """Returns a colorized version of text.  The same text values will
     be consistently colorized."""
-    color = colors_defined.get(text)
-    if not color:
+    colors = colors_defined.get(text)
+    if not colors:
         names = color_cycler.next()
         colors = [getattr(ansi, name) for name in names]
-        colors_defined[text] = color
+        colors_defined[text] = colors
     return ''.join(colors) + text + ansi.RESET
 
 if __name__ == "__main__":
