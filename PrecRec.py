@@ -18,6 +18,23 @@ def precision_recall(n_matched, n_gold, n_proposed):
 
     return precision, recall
 
+def precision_recall_posneg(tp=0, fp=0, fn=0):
+    """Calculates the classification precision and recall, given
+    true positives, false positives, and false negatives."""
+    prec_denom = tp + fp
+    if prec_denom == 0:
+        precision = 0
+    else:
+        precision = tp / prec_denom
+
+    recall_denom = tp + fn
+    if recall_denom == 0:
+        recall = 0
+    else:
+        recall = tp / recall_denom
+
+    return precision, recall
+
 def fscore(precision, recall, beta=1.0):
     """Calculates the f-score (default is balanced f-score; beta > 1
     favors precision), the harmonic mean of precision and recall."""
@@ -37,10 +54,23 @@ def precision_recall_f(n_matched, n_gold, n_proposed, beta=1.0):
 
     return prec, rec, f
 
+def precision_recall_f_posneg(tp=0, fp=0, fn=0, beta=1.0):
+    """Calculates precision, recall and f-score from true/false negatives."""
+
+    prec, rec = precision_recall_posneg(tp, fp, fn)
+    f = fscore(prec, rec, beta=beta)
+
+    return prec, rec, f
+
 def fscore_from_components(n_matched, n_gold, n_proposed, beta=1.0):
     """Calculates f-score from the number of matched, gold, and proposed
     items instead of precision and recall.  See fscore()."""
     return precision_recall_f(n_matched, n_gold, n_proposed, beta=beta)[2]
+
+def fscore_from_components_posneg(tp=0, fp=0, fn=0, beta=1.0):
+    """Calculates f-score from true/false positives and false negaties
+    items instead of precision and recall.  See fscore()."""
+    return precision_recall_f_posneg(tp, fp, fn, beta=beta)[2]
 
 if __name__ == "__main__":
     print precision_recall(1, 10, 1)
