@@ -4,7 +4,8 @@ couple added items."""
 from itertools import *
 __all__ = ['take', 'tabulate', 'iteritems', 'nth', 'all', 'any', 'no',
     'quantify', 'padnone', 'ncycles', 'dotproduct', 'flatten',
-    'repeatfunc', 'pairwise', 'tee', 'iunzip', 'batch']
+    'repeatfunc', 'pairwise', 'tee', 'iunzip', 'batch', 'split_on',
+    'all_pairs']
 
 def take(n, seq):
     """Return the first n items in a sequence."""
