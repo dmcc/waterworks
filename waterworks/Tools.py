@@ -205,7 +205,7 @@ def get_simple_logger(name):
     ch.setLevel(logging.DEBUG)
 
     # create formatter
-    formatter = logging.Formatter("%(asctime)s %(name)s %(levelname)s: %(message)s")
+    formatter = logging.Formatter("%(asctime)s %(name)-6s %(levelname)-5s %(message)s", datefmt='%Y-%m-%d %H:%M:%S')
 
     # add formatter to ch
     ch.setFormatter(formatter)
