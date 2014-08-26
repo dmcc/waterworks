@@ -60,6 +60,7 @@ class Rangifier:
             else:
                 pieces.append("%s-%s" % range)
         return ', '.join(pieces)
+    __repr__ = __str__
     def __iter__(self):
         for (start, end) in self.get_ranges():
             for x in range(start, end + 1):
