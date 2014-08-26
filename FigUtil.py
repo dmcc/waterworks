@@ -62,13 +62,22 @@ def format_table(table, format='csv', outputstream=sys.stdout, **extra_options):
     elif format == 'asciiart':
         from texttable import Texttable
         center = extra_options.pop('center', False)
+        deco = extra_options.pop('deco', None)
         texttable = Texttable(**extra_options)
+        if deco is not None:
+            deco = getattr(Texttable, deco.upper())
+            texttable.set_deco(deco)
         num_cols = len(table[0])
         texttable.set_cols_dtype(['t'] * num_cols)
         texttable.add_rows(table)
         if center:
             texttable.set_cols_align(['l'] + ['c'] * (num_cols - 1))
         print >>outputstream, texttable.draw()
+    elif format == 'tabulate':
+        from tabulate import tabulate
+        extra_options.setdefault('headers', 'firstrow')
+        extra_options.setdefault('tablefmt', 'simple')
+        print >>outputstream, tabulate(table, **extra_options)
     else:
         raise ValueError("Unsupported format: %r (supported formats: %s)" % \
             (format, ' '.join(supported_formats)))
