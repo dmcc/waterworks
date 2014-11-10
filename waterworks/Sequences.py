@@ -118,6 +118,9 @@ def make_ranges(length, step):
     return ranges
 
 def window(seq, n=3, pad=None):
+    """Yields a sliding window of size n over a sequence. The sliding
+    window is a tuple of items in the sequence. This will include padding
+    for the first and last n-1 items in the sequence."""
     ngram = [pad] * n
     for word in seq:
         ngram.pop(0)
@@ -136,7 +139,7 @@ def display_index_every_K_items(seq, k, output_stream=None, format='%s\n'):
     output_stream = output_stream or sys.stdout
     for index, value in enumerate(seq):
         if index % k == 0:
-            output_stream.write('%s\n' % index)
+            output_stream.write(format % index)
             output_stream.flush()
         yield value
 
