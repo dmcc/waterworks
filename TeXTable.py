@@ -25,7 +25,7 @@ def texify(table, compact=1, has_header=False, hlines=True, vlines=True):
     else:
         separator = ''
 
-    s.append(r"\begin{tabular}{" + 'c'.join(([separator] * (xdim + 1))) + "}\n")
+    s.append(r"\begin{tabular}{" + 'c'.join([separator] * (xdim + 1)) + "}\n")
     if hlines:
         s.append(hline_text + "\n")
     for count, row in enumerate(table):
@@ -50,9 +50,9 @@ def greyify_cell(cell, white_is_1=False, value_formatter=None):
         return cell
 
 # XXX TODO more docs
-def make_tex_bitmap(table, has_header=False, white_is_1=True, 
+def make_tex_bitmap(table, has_header=False, white_is_1=True,
                     value_formatter=None):
-    """All floats will be converted to their grey values.  You will need
+    r"""All floats will be converted to their grey values.  You will need
     to include the LaTeX package colortbl:
 
         \usepackage{colortbl}
@@ -65,8 +65,8 @@ def make_tex_bitmap(table, has_header=False, white_is_1=True,
     return texify(rows, has_header=has_header)
 
 if __name__ == "__main__":
-    print texify([[1, 2, 3],
+    print(texify([[1, 2, 3],
                   [4, 5, 6],
-                  [7, 8, 9]])
-    print
-    print make_tex_bitmap([[0.1, 0.2, 0.3]])
+                  [7, 8, 9]]))
+    print()
+    print(make_tex_bitmap([[0.1, 0.2, 0.3]]))

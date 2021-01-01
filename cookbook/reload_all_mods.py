@@ -2,7 +2,7 @@
 """
 Title: Reloading all modules
 URL: http://aspn.activestate.com/ASPN/Cookbook/Python/Recipe/81731
-Submitter: S¿bastien Keim
+Submitter: Sebastien Keim
 Last Updated: 2001/10/15
 Version no: 1.0
 Category: Debugging

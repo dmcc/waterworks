@@ -50,36 +50,36 @@ WHITEBG = '\033[47m'
 
 def move(new_x, new_y):
   'Move cursor to new_x, new_y'
-  print '\033[' + str(new_x) + ';' + str(new_y) + 'H'
+  print('\033[' + str(new_x) + ';' + str(new_y) + 'H')
 
 def moveUp(lines):
   'Move cursor up # of lines'
-  print '\033[' + str(lines) + 'A'
+  print('\033[' + str(lines) + 'A')
 
 def moveDown(lines):
   'Move cursor down # of lines'
-  print '\033[' + str(lines) + 'B'
+  print('\033[' + str(lines) + 'B')
 
 def moveForward(chars):
   'Move cursor forward # of chars'
-  print '\033[' + str(lines) + 'C'
+  print('\033[' + str(lines) + 'C')
 
 def moveBack(chars):
   'Move cursor backward # of chars'
-  print '\033[' + str(lines) + 'D'
+  print('\033[' + str(lines) + 'D')
 
 def save():
   'Saves cursor position'
-  print '\033[s'
+  print('\033[s')
 
 def restore():
   'Restores cursor position'
-  print '\033[u'
+  print('\033[u')
 
 def clear():
   'Clears screen and homes cursor'
-  print '\033[2J'
+  print('\033[2J')
 
 def clrtoeol():
   'Clears screen to end of line'
-  print '\033[K'
+  print('\033[K')

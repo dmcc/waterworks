@@ -24,7 +24,7 @@ def vimdiff(*strings, **options):
     command_template = options.get('command_template', 'vimdiff -gf %s')
     command = command_template % ' '.join(filenames)
     import os
-    print "Running:", command
+    print("Running:", command)
     os.system(command)
 
 def pprint_and_vimdiff(*objs, **options):

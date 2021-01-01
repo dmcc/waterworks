@@ -25,10 +25,8 @@ def edit_distance(a, b):
 def power_set(seq):
     """Returns the power set of an (indexable) sequence."""
     if seq:
-        for s in power_set(seq[1:]):
-            yield s
-        for s in (seq[:1] + y for y in power_set(seq[1:])):
-            yield s
+        yield from power_set(seq[1:])
+        yield from (seq[:1] + y for y in power_set(seq[1:]))
     else:
         yield seq
 
@@ -175,7 +173,7 @@ def all_pairs(seq):
                 yield (item1, item2)
 
 if __name__ == "__main__":
-    print sorted(all_pairs(range(10)))
+    print(sorted(all_pairs(range(10))))
     
     def simple_generator():
         while 1:

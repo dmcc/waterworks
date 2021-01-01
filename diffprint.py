@@ -3,7 +3,7 @@ import difflib
 
 def diffprint(a, b):
     sm = difflib.SequenceMatcher(None, a, b)
-    opcodes = sm.get_grouped_opcodes().next()
+    opcodes = next(sm.get_grouped_opcodes())
 
     padded_a = []
     padded_b = []
@@ -20,9 +20,9 @@ def diffprint(a, b):
     return padded_a, padded_b
 
 if __name__ == "__main__":
-    print diffprint('0123', '1234')
-    print diffprint('0123', '123')
-    print diffprint('123', '153')
-    print diffprint('123', '153333')
-    print diffprint('153333', '123')
-    print diffprint('1112211121', '212111212222')
+    print(diffprint('0123', '1234'))
+    print(diffprint('0123', '123'))
+    print(diffprint('123', '153'))
+    print(diffprint('123', '153333'))
+    print(diffprint('153333', '123'))
+    print(diffprint('1112211121', '212111212222'))

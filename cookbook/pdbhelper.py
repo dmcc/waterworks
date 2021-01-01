@@ -36,7 +36,7 @@ def pdbexcepthook(type, value, tb):
       import traceback, pdb
       # we are NOT in interactive mode, print the exception...
       traceback.print_exception(type, value, tb)
-      print
+      print()
       # ...then start the debugger in post-mortem mode.
       pdb.pm()
 

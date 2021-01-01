@@ -57,75 +57,6 @@ def selectbasedreader(pollobjs, read_amount=1024, timeout=0.1):
                 return
             yield f, output
 
-class Pipe:
-    """Captures some common behaviors about running data through a pipe."""
-    def __init__(self, command):
-        from popen2 import Popen3
-        self.pipe = Popen3(command, capturestderr=True)
-        self.command = command
-    def feed(self, data):
-        self.pipe.tochild.write(data)
-        self.pipe.tochild.flush()
-    def close(self):
-        self.pipe.tochild.close()
-    def check(self, read_amount=1024, timeout=0, on_not_ready_func=None,
-              return_on_finished=True, include_stderr=False):
-        # print "check()", self.command
-        p_out, p_err = self.pipe.fromchild, self.pipe.childerr
-        fd_out = p_out.fileno()
-        fd_err = p_err.fileno()
-        result = ''
-        while 1:
-            rlist, _, _ = select.select([p_out, p_err], [], [], timeout)
-            # print 'rlist', rlist
-            if not rlist:
-                if on_not_ready_func is None:
-                    # print 'spit ""'
-                    yield ''
-                else:
-                    # print 'func', on_not_ready_func
-                    on_not_ready_func()
-
-            if p_out in rlist:
-                output = os.read(fd_out, read_amount)
-                # print 'yield', repr(output)
-                yield output
-
-            if include_stderr and p_err in rlist:
-                output = os.read(fd_err, read_amount)
-                yield output
-
-            # print 'poll', self.pipe.poll()
-            if return_on_finished and self.pipe.poll() != -1:
-                # print 'poll', self.pipe.poll()
-                return
-    def process(self, data, timeout=1, verifier=None, close_after_feed=False):
-        """Rechecks with a timeout until there is no more data coming
-        from the pipe.  If there are more elaborate cues about when to
-        stop reading, you may need to use check() directly.  verifier()
-        is a predicate applied to the output.  If it raises an exception,
-        we will wait for more data."""
-        from cStringIO import StringIO
-        self.feed(data)
-        if close_after_feed:
-            self.close()
-        result = ''
-        while 1:
-            for newdata in self.check(timeout=timeout):
-                if result.strip() and newdata == '':
-                    break
-                result += newdata
-
-            if verifier:
-                try:
-                    verifier(result)
-                    break
-                except:
-                    pass # loop again, look for more data
-            else:
-                break
-        return result
-
 # yes, these docs are longer than the code
 def build_command(executable_filename, options, flags, extra_options=''):
     """Helps build command line arguments.  In our terminology, options
@@ -153,7 +84,7 @@ def build_command(executable_filename, options, flags, extra_options=''):
         options = options.items()
     for value, option in options:
         if value is not None:
-            pieces.append('-%s %s' % (option, value))
+            pieces.append(f'-{option} {value}')
 
     if isinstance(flags, dict):
         flags = flags.items()
@@ -176,15 +107,3 @@ def search_and_destroy(host, pid, signal=15):
         os.kill(pid, signal)
     else:
         os.system('ssh %s "kill -%d %d"' % (host, signal, pid))
-
-if __name__ == "__main__":
-    p = Pipe("rev")
-    p.feed('splarg')
-    p.close()
-
-    import time
-    for x in p.check(on_not_ready_func=lambda: time.sleep(0.1),
-                     return_on_finished=False):
-        print repr(x)
-        if x:
-            break

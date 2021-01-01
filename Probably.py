@@ -1,6 +1,5 @@
 """Potentially useful functions for probability, statistics, and machine
 learning.  All entropies in this are base 2 unless otherwise specified."""
-from __future__ import division
 
 import math
 from random import uniform, random, randint
@@ -219,7 +218,7 @@ def crp(count, total, alpha):
 
 if __name__ == "__main__":
     dist = [1, 3, 5]
-    print "Sampling from distribution:", dist
+    print("Sampling from distribution:", dist)
 
     hist = {1:0, 3:0, 5:0}
     samples = 5000
@@ -228,19 +227,19 @@ if __name__ == "__main__":
 
     normdist = sum(dist)
     for d in dist:
-        print "True frequency:", d/normdist, \
-              "sampled frequency", hist[d]/samples
+        print("True frequency:", d/normdist, \
+              "sampled frequency", hist[d]/samples)
 
     dist = [.8, .2, .5]
     logdist = [math.log(x) for x in dist]
-    print "Sampling from logarithmic distribution:", logdist
-    hist = dict([(x,0) for x in dist])
+    print("Sampling from logarithmic distribution:", logdist)
+    hist = {x:0 for x in dist}
     samples = 5000
     for x in range(samples):
         hist[dist[sample_multinomial(dist)]] += 1
 
     normdist = sum(dist)
     for d in dist:
-        print "True frequency:", d/normdist, \
-              "sampled frequency", hist[d]/samples
+        print("True frequency:", d/normdist, \
+              "sampled frequency", hist[d]/samples)
         

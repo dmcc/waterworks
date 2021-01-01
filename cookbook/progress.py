@@ -105,7 +105,7 @@ if __name__ == "__main__":
     import time, sys
     prog = ProgressBar(0, 100, 34, autoreturn=False)
     prog2 = ProgressBar(0, 100, 34)
-    for i in xrange(1001):
+    for i in range(1001):
         prog.update_amount(i / 10.0)
         prog2.update_amount(100 - (i / 5.0))
         sys.stdout.write("\r%s" % prog)

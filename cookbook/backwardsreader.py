@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# -*-mode: python; coding: iso-8859-1 -*-
 #
 # Copyright (c) Peter Astrand <astrand@cendio.se>
 
@@ -52,7 +51,7 @@ class BackwardsReader:
     def __iter__(self):
         while 1:
             line = self.readline()
-            if line is "":
+            if line == "":
                 break
             else:
                 yield line
@@ -65,4 +64,4 @@ if __name__ == "__main__":
         line = br.readline()
         if not line:
             break
-        print repr(line)
+        print(repr(line))

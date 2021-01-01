@@ -18,9 +18,9 @@ class LazyList:
         # TODO doesn't handle slices currently -- reads entire list whenever
         # you ask for these!
         if not self.iterator_exhausted:
-            if index < 0:
+            if isinstance(index, slice) or index < 0:
                 self._read_all()
-            if index >= len(self.list_so_far):
+            if not isinstance(index, slice) and index >= len(self.list_so_far):
                 self._read_many(index - len(self.list_so_far) + 1)
 
         return self.list_so_far[index]
@@ -34,7 +34,7 @@ class LazyList:
             self._read_iterator()
     def _read_iterator(self):
         try:
-            self.list_so_far.append(self.iterator.next())
+            self.list_so_far.append(next(self.iterator))
         except StopIteration:
             self.iterator_exhausted = True
 
@@ -42,18 +42,20 @@ class LazyList:
         if not self.use_partial_list:
             self._read_all()
         return getattr(self.list_so_far, attr)
+    def __len__(self):
+        return len(self.list_so_far)
 
 if __name__ == "__main__":
     def g():
         for x in range(10):
-            print 'yield', x
+            print('yield', x)
             yield x
 
     l = LazyList(g())
-    print l[4]
-    print l[0]
-    print l[2:5]
-    print l[-1]
-    print len(l)
-    print repr(l)
-    print len(l)
+    print(l[4])
+    print(l[0])
+    print(l[2:5])
+    print(l[-1])
+    print(len(l))
+    print(repr(l))
+    print(len(l))

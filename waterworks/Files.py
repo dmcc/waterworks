@@ -1,6 +1,5 @@
 """Collection of functions and classes for working on files."""
 
-from __future__ import nested_scopes
 import os, sys, pipes
 from gzip import GzipFile
 
@@ -81,7 +80,7 @@ def read_file_with_timeout(fileobject, timeout=1):
     import signal
 
     def handler(signum, frame):
-        raise IOError("Couldn't read from file object within %s seconds" % \
+        raise OSError("Couldn't read from file object within %s seconds" % \
             timeout)
 
     # Set the signal handler and an alarm to go off
@@ -108,7 +107,7 @@ def mkdirparents(path):
     exception (this may be a bug)."""
     try:
         os.makedirs(path)
-    except OSError, oe:
+    except OSError as oe:
         pass
 
 def cleanup_path(path):
@@ -153,10 +152,10 @@ class LazyPipelineFile:
     def __setstate__(self, state):
         self.__dict__.update(state)
     def __repr__(self):
-        return "LazyPipelineFile%r" % (self.__getinitargs__(),)
+        return f"LazyPipelineFile{self.__getinitargs__()!r}"
     __str__ = __repr__
     def __getattr__(self, attr):
-        if attr is 'filename':
+        if attr == 'filename':
             return self._filename
 
         # if we haven't opened the actual file yet, this is the time to do it
@@ -196,7 +195,7 @@ def islocked(fileobj):
     flags = fcntl.LOCK_NB | fcntl.LOCK_EX
     try:
         fcntl.lockf(fileobj.fileno(), flags)
-    except IOError, e:
+    except OSError as e:
         if e.strerror == "Resource temporarily unavailable":
             return True
     
@@ -219,7 +218,7 @@ def keepable_tempfile(mode='w+b', suffix='', prefix='tmp', dir=None,
                                             dir=dir)
             os.close(fd) # we'd open this with fdopen but for some reason, that
                          # hides the filename
-            f = file(filename, mode)
+            f = open(filename, mode)
             return f
         else: # dir
             return tempfile.mkdtemp(suffix=suffix, prefix=prefix, dir=dir)
@@ -256,11 +255,11 @@ def split_input_into_sections(input_objects, outputdir, num_divisions=20,
     last_section_size = section_size + extra_lines
     
     if verbose:
-        print "Making %d divisions of input data..." % num_divisions
-        print num_divisions, num_lines
-        print section_size, last_section_size
-        print section_size * (num_divisions - 1)
-        print (section_size * (num_divisions - 1)) + last_section_size
+        print("Making %d divisions of input data..." % num_divisions)
+        print(num_divisions, num_lines)
+        print(section_size, last_section_size)
+        print(section_size * (num_divisions - 1))
+        print((section_size * (num_divisions - 1)) + last_section_size)
     
     # make a directory to put the division files
     mkdirparents(outputdir)
@@ -279,7 +278,7 @@ def split_input_into_sections(input_objects, outputdir, num_divisions=20,
                 current_division_file.flush()
             current_division_file = opener(div_filename, mode='w')
             if verbose:
-                print "division", current_division, "at", num_lines, "lines"
+                print("division", current_division, "at", num_lines, "lines")
         num_lines += 1
         current_division_file.write(line)
     current_division_file.flush()

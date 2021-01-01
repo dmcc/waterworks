@@ -22,7 +22,6 @@ Known bugs:
 Please feel free to contact me at dmcc AT bigasterisk DOT com with questions,
 feature requests, patches, whatever.
 """
-from __future__ import generators
 
 __version__ = 2.1
 __author__ = 'David McClosky (dmcc+py AT bigasterisk DOT com)'
@@ -179,10 +178,10 @@ class Tailer(TailInterface):
             time.sleep(self.interval)
 
 if __name__ == '__main__':
-    print "Tailing %s:" % (', '.join(sys.argv[1:]))
+    print("Tailing %s:" % (', '.join(sys.argv[1:])))
     def printer(filename, s):
         if s: 
-            print "%s:\t%r" % (filename, s)
+            print(f"{filename}:\t{s!r}")
             sys.stdout.flush()
     t = Tailer(*sys.argv[1:])
     t.pollloop(printer)

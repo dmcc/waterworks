@@ -1,5 +1,6 @@
 """Just like shelve, but keys are always integers instead of strings."""
-import shelve, anydbm, os
+import collections
+import shelve, dbm, os
 
 # this module is in the middle of (stalled) refactoring.
 # the goal is to ensure that IntShelve is close enough to IW.
@@ -36,7 +37,7 @@ class IntShelve:
         del self._shelve[str(key)]
     def update(self, new_dict):
         self._ensure_write_mode()
-        new_dict_str = dict([(str(k), v) for k, v in new_dict.items()])
+        new_dict_str = {str(k): v for k, v in new_dict.items()}
         self._shelve.update(new_dict_str)
     def pop(self, key, default=None):
         self._ensure_write_mode()
@@ -66,8 +67,7 @@ class IntShelve:
             yield (int(k), v)
 
 # TODO: make IntShelve a child of this
-import UserDict
-class WriteOnDemandShelve(UserDict.DictMixin):
+class WriteOnDemandShelve(collections.abc.MutableMapping):
     def __init__(self, filename):
         self._filename = filename
         # open in read mode for now, but switch to write on the first write

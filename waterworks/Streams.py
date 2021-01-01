@@ -1,7 +1,7 @@
 """Collection of functions and classes for working on file streams"""
 
 import sys
-from cStringIO import StringIO
+from io import StringIO
 
 class stream_prefixer:
    def __init__(self, prefix, originalstream):
@@ -46,5 +46,5 @@ def tee_stderr():
 if __name__ == "__main__":
     sys.stdout = tee_stdout()
 
-    print "hi!"
-    print 'str()ed:', repr(str(sys.stdout))
+    print("hi!")
+    print('str()ed:', repr(str(sys.stdout)))

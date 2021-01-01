@@ -1,5 +1,4 @@
 """Integer Range Parser and Generator"""
-# TODO docs coming soon, for now we have examples
 import re
 from waterworks.Strings import multisplit
 
@@ -7,9 +6,9 @@ def parse(string_to_parse, range_markers=(r'-', r'\.\.'),
           range_delimiters=(',', ' ')):
     """Example:
 
-    >>> print parse("1-7, 20-25, 19, 12, 109-111")
+    >>> print(parse("1-7, 20-25, 19, 12, 109-111"))
     [1, 2, 3, 4, 5, 6, 7, 20, 21, 22, 23, 24, 25, 19, 12, 109, 110, 111]
-    >>> print parse("1-7, 20..25, 19, 12, 109-111")
+    >>> print(parse("1-7, 20..25, 19, 12, 109-111"))
     [1, 2, 3, 4, 5, 6, 7, 20, 21, 22, 23, 24, 25, 19, 12, 109, 110, 111]
     """
     range_segments = multisplit(string_to_parse, range_delimiters)
@@ -30,22 +29,22 @@ def parse(string_to_parse, range_markers=(r'-', r'\.\.'),
 class Rangifier:
     """Example:
 
-    >>> print Rangifier([1, 5, 6, 2, 3])
+    >>> print(Rangifier([1, 5, 6, 2, 3]))
     1-3, 5-6
-    >>> print Rangifier([1, 2, 3, 4, 6])
+    >>> print(Rangifier([1, 2, 3, 4, 6]))
     1-4, 6
-    >>> print Rangifier([6, 4, 3, 2, 1])
+    >>> print(Rangifier([6, 4, 3, 2, 1]))
     1-4, 6
-    >>> print Rangifier([1, 2, 3, 6, 5, 4])
+    >>> print(Rangifier([1, 2, 3, 6, 5, 4]))
     1-6
-    >>> print Rangifier("1-6")
+    >>> print(Rangifier("1-6"))
     1-6
     """
     def __init__(self, seq):
         self.starts = {} # start : (start, end)
         self.ends = {}   # end : (start, end)
 
-        if isinstance(seq, basestring):
+        if isinstance(seq, str):
             seq = parse(seq)
 
         for elt in seq:
@@ -63,8 +62,7 @@ class Rangifier:
     __repr__ = __str__
     def __iter__(self):
         for (start, end) in self.get_ranges():
-            for x in range(start, end + 1):
-                yield x
+            yield from range(start, end + 1)
     def add(self, newstart, newend):
         newrange = (newstart, newend)
         oldrange = None
@@ -94,12 +92,11 @@ class Rangifier:
         start, end = range
         self.starts[start] = range
         self.ends[end] = range
-    def _forget_range(self, (start, end)):
-        del self.starts[start]
-        del self.ends[end]
+    def _forget_range(self, start_and_end):
+        del self.starts[start_and_end[0]]
+        del self.ends[start_and_end[1]]
     def get_ranges(self):
-        ranges = self.ends.values()
-        ranges.sort()
+        ranges = sorted(self.ends.values())
         return ranges
 
 def test_module():
@@ -108,8 +105,8 @@ def test_module():
 
 if __name__ == "__main__":
     # import sys
-    # print parse(sys.argv[1])
+    # print(parse(sys.argv[1])
 
-    print "testing"
+    print("testing")
     test_module()
-    print list(Rangifier([1,2,3,4]))
+    print(list(Rangifier([1,2,3,4])))

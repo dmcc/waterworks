@@ -62,7 +62,7 @@ class CounterDict(dict):
         """Returns a list of the n most common elements and their counts.
         Returns all elements and counts if n is None.
         (see collections.Counter.most_common)"""
-        items = sorted(self.items(), key=lambda (item, count): (-count, item))
+        items = sorted(self.items(), key=lambda item_count: (-item_count[1], item_count[0]))
         if n is not None:
             return items[:n]
         else:
@@ -143,8 +143,8 @@ def dictiadd(d1, d2):
 
 def dictmultiply(d, multiplier, dict=dict):
     """Returns a dictionary with all values multiplied by multiplier."""
-    return dict((key, value * multiplier)
-        for key, value in d.items())
+    return {key: value * multiplier
+        for key, value in d.items()}
 
 def dictmax(d1, d2):
     """Returns a new dictionary with the union of the keys found in d1 and d2

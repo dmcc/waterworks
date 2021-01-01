@@ -54,11 +54,11 @@ def format_table(table, format='csv', outputstream=sys.stdout, **extra_options):
             writer.writerow(row)
     elif format == 'tex':
         import TeXTable
-        print >>outputstream, TeXTable.texify(table, has_header=True)
+        print(TeXTable.texify(table, has_header=True), file=outputstream)
     elif format == 'texbitmap':
         import TeXTable
         extra_options.setdefault('has_header', True)
-        print >>outputstream, TeXTable.make_tex_bitmap(table, **extra_options)
+        print(TeXTable.make_tex_bitmap(table, **extra_options), file=outputstream)
     elif format == 'asciiart':
         from texttable import Texttable
         center = extra_options.pop('center', False)
@@ -72,23 +72,23 @@ def format_table(table, format='csv', outputstream=sys.stdout, **extra_options):
         texttable.add_rows(table)
         if center:
             texttable.set_cols_align(['l'] + ['c'] * (num_cols - 1))
-        print >>outputstream, texttable.draw()
+        print(texttable.draw(), file=outputstream)
     elif format == 'tabulate':
         from tabulate import tabulate
         extra_options.setdefault('headers', 'firstrow')
         extra_options.setdefault('tablefmt', 'simple')
-        print >>outputstream, tabulate(table, **extra_options)
+        print(tabulate(table, **extra_options), file=outputstream)
     else:
         raise ValueError("Unsupported format: %r (supported formats: %s)" % \
             (format, ' '.join(supported_formats)))
 
 if __name__ == "__main__":
-    print dict_to_table({('add-0', '01') : 7,
+    print(dict_to_table({('add-0', '01') : 7,
                          ('add-0', '22') : 8,
                          ('add-0', '24') : 9,
                          ('add-1', '01') : 10,
                          ('add-1', '22') : 11,
-                         ('add-1', '24') : 12,})
+                         ('add-1', '24') : 12,}))
     format_table(dict_to_table({('add-0', '01') : 7,
                          ('add-0', '22') : 8,
                          ('add-0', '24') : 9,

@@ -67,7 +67,7 @@ def get_color(a,cmin,cmax):
     blue = min((max((4*(0.75-a),0.)),1.))
     red = min((max((4*(a-0.25),0.)),1.))
     green = min((max((4*math.fabs(a-0.5)-1.,0)),1.))
-    return '#%1x%1x%1x' % (int(15*red),int(15*green),int(15*blue))
+    return '#{:1x}{:1x}{:1x}'.format(int(15*red),int(15*green),int(15*blue))
 
 def get_color_grey(a,cmin,cmax):
     """\
@@ -77,7 +77,7 @@ def get_color_grey(a,cmin,cmax):
     import math
     try: a = float(a-cmin)/(cmax-cmin)
     except ZeroDivisionError: a=0.5 # cmax == cmin
-    return '#%02x%02x%02x' % (int(255*a),int(255*a),int(255*a))
+    return '#{:02x}{:02x}{:02x}'.format(int(255*a),int(255*a),int(255*a))
 
 def pcolor_matrix_pil(A, fname='tmp.png', do_outline=0,
                       height=300, width=300, colorfunc=get_color_grey,

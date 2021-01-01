@@ -1,6 +1,6 @@
 """Tools for creating and displaying histograms."""
+import collections
 import math
-from UserDict import IterableUserDict
 from tempfile import NamedTemporaryFile
 
 def makelogbuckets(minval, maxval, base=2):
@@ -91,14 +91,14 @@ def bucket_xy_data_by_x(x, y, bucketfunc, **bucketfuncopts):
         bucketdict.add(key, amount=val)
     return bucketdict
 
-class HistogramBucketDict(IterableUserDict):
+class HistogramBucketDict(collections.UserDict):
     """Histogram bucket dictionaries have ranges for keys.  They are
     a mapping between { an integer range : count of items added within
     that range }.  In short they're an attempt to "blur" sparse histogram
     data."""
     def __init__(self, cutoffs, data=None):
         """Create a HistogramBucketDict with cutoff points for buckets."""
-        IterableUserDict.__init__(self)
+        collections.UserDict.__init__(self)
         cutoffs = cutoffs[:]
         cutoffs.reverse()
         self.cutoffs = cutoffs
@@ -137,7 +137,7 @@ class HistogramBucketDict(IterableUserDict):
         """Returns a list of pairs.  Each pair consists of a bucket
         range and the number of items in that range."""
         descs = self.bucket_descriptions()
-        return [(descs[k], v) for k, v in IterableUserDict.items(self)]
+        return [(descs[k], v) for k, v in collections.UserDict.items(self)]
     def gnuplot_file(self):
         """Returns a temporary named file which can be used in gnuplot
         to graph this HistogramBucketDict.
@@ -148,7 +148,7 @@ class HistogramBucketDict(IterableUserDict):
         items = self.items()
         items.sort()
         for k, v in items:
-            f.write("%s %s\n" % (k[0] or 0, v))
+            f.write("{} {}\n".format(k[0] or 0, v))
         f.flush()
         f.seek(0) # rewind so it will be readily usable
 
@@ -180,7 +180,7 @@ class HistogramBucketDict(IterableUserDict):
             else:
                 high = 'inf'
 
-            ranges[k] = "%s-%s" % (low, high)
+            ranges[k] = f"{low}-{high}"
             maxkeylength = max(maxkeylength, len(ranges[k]))
             maxvalue = max(maxvalue, v)
 
@@ -241,15 +241,15 @@ def test_buckets():
     for x in range(0, 600):
         h4.add(x)
 
-    print "==="
-    print h1
-    print "==="
-    print h2
-    print "==="
-    print h3
-    print "==="
-    print h4
-    print "==="
+    print("===")
+    print(h1)
+    print("===")
+    print(h2)
+    print("===")
+    print(h3)
+    print("===")
+    print(h4)
+    print("===")
 
     gnuplot_histograms([h1, h2, h3, h4], ['log 10', 'log 30', 
                                           'uniform 10', 'uniform 30'])
@@ -269,15 +269,15 @@ def autobucket_from_stdin():
     for line in sys.stdin:
         if line.strip():
             values.append(float(line))
-    print "Read", len(values), "values from stdin."
-    print "Min:", min(values)
-    print "Max:", max(values)
+    print("Read", len(values), "values from stdin.")
+    print("Min:", min(values))
+    print("Max:", max(values))
 
     buckets = guessuniformcontentsbucketsfromdata(values, numbuckets=numbuckets)
-    print "Cutoffs:", buckets
+    print("Cutoffs:", buckets)
     hist = HistogramBucketDict(buckets)
     hist.add_all(values)
-    print hist
+    print(hist)
     gnuplot_histograms([hist], ['Values'])
 
 if __name__ == "__main__":

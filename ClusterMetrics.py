@@ -1,5 +1,4 @@
 """ClusterMetrics: a metric cluster**** of cluster metrics!"""
-from __future__ import division
 from math import sqrt
 from Probably import variation_of_information as vi, \
     mutual_information as mi, log2, conditional_entropy_X_Given_Y, \
@@ -9,6 +8,7 @@ from PrecRec import precision_recall_f, fscore
 
 # TODO switch to waterworks.Dictionaries.TwoLevelCounterDict
 from AIMA import DefaultDict
+from functools import reduce
 
 class ConfusionMatrix(object):
     def __init__(self):
@@ -88,7 +88,7 @@ class ConfusionMatrix(object):
         return rows, all_gold, all_test
 
     def as_latex_confusion_matrix(self, normalize='gold'):
-        """Returns the table as a LaTeX formatted confusion matrix.
+        r"""Returns the table as a LaTeX formatted confusion matrix.
         You will need to include the LaTeX package colortbl:
 
             \usepackage{colortbl}
@@ -218,7 +218,7 @@ class ConfusionMatrix(object):
         If verbose is true, the mapping will be printed before being
         evaluated."""
         if verbose:
-            print "Mapping", mapping
+            print("Mapping", mapping)
         right = 0
         wrong = 0
         for (gold, test), count in self.as_confusion_items():
@@ -400,7 +400,7 @@ class ConfusionMatrix(object):
     def _pairwise_statistics(self):
         items = []
         for (gold, test), count in self.as_confusion_items():
-            items.extend((((gold, test),) * count))
+            items.extend(((gold, test),) * count)
 
         N00 = 0
         N01 = 0
@@ -429,22 +429,22 @@ if __name__ == "__main__":
     cm.add('A', 1, 9)
     cm.add('B', 2, 9)
     cm.add('A', 2, 10)
-    print "gold tags", cm.all_gold
-    print "test tags", cm.all_test
-    print list(cm.as_confusion_items())
-    print "121g", cm.one_to_one_greedy()
-    print "m21", cm.eval_mapping(cm.many_to_one_mapping())
-    print "vi", cm.variation_of_information()
-    print "mi", cm.mutual_information()
-    print "nvi", cm.normalized_vi()
-    print "121o", cm.one_to_one_optimal_mapping()
-    print "121o", cm.one_to_one_optimal()
-    print "edge-f", cm.prec_rec()
-    print "micro-f", cm.micro_average_f()
-    print "macro-f", cm.macro_average_f()
-    print "nmi", cm.normalized_mutual_information()
-    print "vm", cm.v_measure()
-    print "beta vm", cm.v_beta()
+    print("gold tags", cm.all_gold)
+    print("test tags", cm.all_test)
+    print(list(cm.as_confusion_items()))
+    print("121g", cm.one_to_one_greedy())
+    print("m21", cm.eval_mapping(cm.many_to_one_mapping()))
+    print("vi", cm.variation_of_information())
+    print("mi", cm.mutual_information())
+    print("nvi", cm.normalized_vi())
+    print("121o", cm.one_to_one_optimal_mapping())
+    print("121o", cm.one_to_one_optimal())
+    print("edge-f", cm.prec_rec())
+    print("micro-f", cm.micro_average_f())
+    print("macro-f", cm.macro_average_f())
+    print("nmi", cm.normalized_mutual_information())
+    print("vm", cm.v_measure())
+    print("beta vm", cm.v_beta())
 
     #verify nvi gets 1 for single-cluster
     cm = ConfusionMatrix()
@@ -457,13 +457,13 @@ if __name__ == "__main__":
     cm = ConfusionMatrix()
     cm.add('A', 1, 10)
     cm.add('B', 2, 10)
-    print "121o", cm.one_to_one_optimal()
-    print "vi", cm.variation_of_information()
-    print "nvi", cm.normalized_vi()
-    print "edge-f", cm.prec_rec()
-    print "micro-f", cm.micro_average_f()
-    print "macro-f", cm.macro_average_f()
-    print "nmi", cm.normalized_mutual_information()
-    print "vm", cm.v_measure()
-    print "beta vm", cm.v_beta()
+    print("121o", cm.one_to_one_optimal())
+    print("vi", cm.variation_of_information())
+    print("nvi", cm.normalized_vi())
+    print("edge-f", cm.prec_rec())
+    print("micro-f", cm.micro_average_f())
+    print("macro-f", cm.macro_average_f())
+    print("nmi", cm.normalized_mutual_information())
+    print("vm", cm.v_measure())
+    print("beta vm", cm.v_beta())
 

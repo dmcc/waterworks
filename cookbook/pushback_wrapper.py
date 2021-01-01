@@ -22,7 +22,7 @@ Sat Oct 18 05:20:45 EDT 2003
 the 'nonzero' test allows you to do quick boolean tests on whether or
 not the iterator is empty.
 """
-class pushback_wrapper(object):
+class pushback_wrapper:
     """
     
     >>> p = pushback_wrapper(iter([1, 2, 3, 37]))
@@ -77,7 +77,7 @@ class pushback_wrapper(object):
             return True
         
         try:
-            self.pushed_back.insert(0, self.it.next())
+            self.pushed_back.insert(0, next(self.it))
         except StopIteration:
             return False
         else:
@@ -87,7 +87,7 @@ class pushback_wrapper(object):
         try:
             return self.pushed_back.pop()
         except IndexError:
-            return self.it.next()
+            return next(self.it)
         
     def pushback(self, item):
         self.pushed_back.append(item)

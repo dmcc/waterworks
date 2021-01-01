@@ -35,10 +35,11 @@ class PickledFunction:
         state = dict(self.__dict__)
         state.pop('_func', None)
         return state
+    def __call__(self, *args, **kwargs):
+        return self._func(*args, **kwargs)
 
     def __getattr__(self, attr):
-        """All attributes (__call__ especially) are passed onto the
-        function."""
+        """All other attributes are passed onto the function."""
         return getattr(self._func, attr)
 
 if __name__ == "__main__":
@@ -51,10 +52,10 @@ if __name__ == "__main__":
         return 'zarg2'
 
     p = PickledFunction(func)
-    print 'p', p
+    print('p', p)
     pickled = pickle.dumps(p)
     unpickled = pickle.loads(pickled)
-    print 'unpickled', unpickled
-    print 'doc', unpickled.__doc__
-    print unpickled()
-    print 'done'
+    print('unpickled', unpickled)
+    print('doc', unpickled.__doc__)
+    print(unpickled())
+    print('done')

@@ -19,7 +19,7 @@ class Memoize:
         self.fn = fn
         self.memo = {}
     def __call__(self, *args):
-        if not self.memo.has_key(args):
+        if args not in self.memo:
             self.memo[args] = self.fn(*args)
         return self.memo[args]
     def clear(self):

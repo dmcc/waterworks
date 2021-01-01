@@ -27,28 +27,28 @@ exception if the number of names and values differ.
 >>> try:
 ...     list(zip_exc("", range(3)))
 ... except LengthMismatch:
-...     print "mismatch"
+...     print("mismatch")
 mismatch
 
 >>> try:
 ...     list(zip_exc(range(3), ()))
 ... except LengthMismatch:
-...     print "mismatch"
+...     print("mismatch")
 mismatch
 
 >>> try:
 ...     list(zip_exc(range(3), range(2), range(4)))
 ... except LengthMismatch:
-...     print "mismatch"
+...     print("mismatch")
 mismatch
 
 >>> items = zip_exc(range(3), range(2), range(4))
->>> items.next()
+>>> next(items)
 (0, 0, 0)
->>> items.next()
+>>> next(items)
 (1, 1, 1)
->>> try: items.next()
-... except LengthMismatch: print "mismatch"
+>>> try: next(items)
+... except LengthMismatch: print("mismatch")
 mismatch
 
 Discussion:
@@ -59,12 +59,12 @@ http://mail.python.org/pipermail/python-3000/2006-March/000160.html,
 for example.
 
 To keep the performance hit low, I've tried hard move as much of the
-work into code written in C (The chain() and izip() functions from the
+work into code written in C (The chain() and zip() functions from the
 marvelous itertools module). I challenge you to come up with something
 faster in pure Python :-)
 """
 
-from itertools import chain, izip
+from itertools import chain
 
 class LengthMismatch(Exception):
     pass
@@ -76,7 +76,7 @@ def _throw():
 def _check(rest):
     for i in rest:
         try:
-            i.next()
+            next(i)
         except LengthMismatch:
             pass
         else:
@@ -85,12 +85,12 @@ def _check(rest):
     yield None # unreachable
 
 def zip_exc(*iterables):
-    """Like itertools.izip(), but throws a LengthMismatch exception if
+    """Like zip(), but throws a LengthMismatch exception if
     the iterables' lengths differ.
     """
     rest = [chain(i, _throw()) for i in iterables[1:]]
     first = chain(iterables[0], _check(rest))
-    return izip(*[first] + rest)
+    return zip(*[first] + rest)
 
 if __name__ == "__main__":
     import doctest

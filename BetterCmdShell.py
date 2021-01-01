@@ -24,7 +24,7 @@ class BetterCmdShell(Cmd):
 
     def do_quit(self, arg):
         """Exit the program."""
-        print "\nBye!"
+        print("\nBye!")
         return True
 
     def onecmd(self, line):
@@ -35,11 +35,11 @@ class BetterCmdShell(Cmd):
         except:
             from waterworks.Tools import get_current_traceback_tuple
             exc_class, exc, desc = get_current_traceback_tuple()
-            print ansi.RED + ''.join(desc).strip() + ansi.BOLD
+            print(ansi.RED + ''.join(desc).strip() + ansi.BOLD)
             if exc is None:
-                print exc_class
+                print(exc_class)
             else:
-                print "%s: %s" % (exc_class.__name__, exc)
+                print(f"{exc_class.__name__}: {exc}")
             sys.stdout.write(ansi.RESET)
 
     def default(self, line):
@@ -54,8 +54,8 @@ class BetterCmdShell(Cmd):
                 for d in dir(self) if d.startswith('do_') and \
                     d.replace('do_', '').startswith(command)]
             if len(matches) == 1:
-                newcommand = '%s %s' % (matches[0], rest[0])
-                print "expanded>", newcommand
+                newcommand = '{} {}'.format(matches[0], rest[0])
+                print("expanded>", newcommand)
                 self.onecmd(newcommand)
             elif matches:
                 def highlight(text):
@@ -63,9 +63,9 @@ class BetterCmdShell(Cmd):
                     text = text[:l] + ansi.RESET + text[l:]
                     text = ansi.RED + ansi.BOLD + text
                     return text
-                print "Possible matches:"
-                print '\t' + '\n\t'.join(highlight(match) for match in matches)
-                print "Type a longer prefix to clarify."
+                print("Possible matches:")
+                print('\t' + '\n\t'.join(highlight(match) for match in matches))
+                print("Type a longer prefix to clarify.")
             else:
                 Cmd.default(self, line)
 
@@ -86,7 +86,7 @@ class BetterCmdShell(Cmd):
                 docs = getdoc(getattr(self, 'do_' + line))
                 if not docs:
                     docs = '(to be documented)'
-                self.stdout.write("%s: %s\n" % (ansi.BOLD + line + ansi.RESET,
+                self.stdout.write("{}: {}\n".format(ansi.BOLD + line + ansi.RESET,
                                                 str(docs)))
                 return
         except:
@@ -95,7 +95,7 @@ class BetterCmdShell(Cmd):
         return Cmd.do_help(self, line)
 
     def help_all(self):
-        print "All documented commands:"
+        print("All documented commands:")
         undocumented = []
         for attr in dir(self):
             if attr.startswith('do_'):
@@ -105,8 +105,8 @@ class BetterCmdShell(Cmd):
                     undocumented.append(attr)
                     continue
                 self.do_help(attr)
-        print
-        print 'Undocumented:', ' '.join(undocumented)
+        print()
+        print('Undocumented:', ' '.join(undocumented))
 
     @staticmethod
     def make_completer(*possible_values):

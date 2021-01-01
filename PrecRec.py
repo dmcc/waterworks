@@ -1,5 +1,4 @@
 """PrecRec: standard calculation of precision, recall and f-score."""
-from __future__ import division
 
 def precision_recall(n_matched, n_gold, n_proposed):
     """Calculates the classification precision and recall, given
@@ -73,12 +72,12 @@ def fscore_from_components_posneg(tp=0, fp=0, fn=0, beta=1.0):
     return precision_recall_f_posneg(tp, fp, fn, beta=beta)[2]
 
 if __name__ == "__main__":
-    print precision_recall(1, 10, 1)
-    print precision_recall(10, 10, 20)
-    print precision_recall(10, 10, 10)
+    print(precision_recall(1, 10, 1))
+    print(precision_recall(10, 10, 20))
+    print(precision_recall(10, 10, 10))
 
-    print fscore(1, 1)
-    print fscore(0, 0)
-    print fscore(.5, .5)
-    print fscore(.5, .7)
-    print fscore(.7, .5)
+    print(fscore(1, 1))
+    print(fscore(0, 0))
+    print(fscore(.5, .5))
+    print(fscore(.5, .7))
+    print(fscore(.7, .5))

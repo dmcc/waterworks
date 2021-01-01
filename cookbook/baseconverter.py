@@ -77,7 +77,7 @@ def baseconvert(number,fromdigits,todigits):
         neg=0
 
     # make an integer out of the number
-    x=long(0)
+    x=int(0)
     for digit in str(number):
        x = x*len(fromdigits) + fromdigits.index(digit)
     

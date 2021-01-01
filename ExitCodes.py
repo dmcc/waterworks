@@ -54,14 +54,14 @@ class ExitCode(Exception):
                 signame = " (%s)" % self.stoppedbysignal
             else:
                 signame = ""
-            desc.append("Stopped by signal %d%s" % (self.stoppedbysignalnum, 
+            desc.append("Stopped by signal %d%s" % (self.stoppedbysignalnum,
                                                     signame))
         if self.coredumped:
             desc.append("coredumped")
         return ', '.join(desc)
 
     def __repr__(self):
-        return "<%s: %s, message=%r>" % (self.__class__.__name__, 
+        return "<{}: {}, message={!r}>".format(self.__class__.__name__,
                                          self.exitcode,
                                          self.message)
     def __str__(self):
@@ -71,7 +71,7 @@ class ExitCode(Exception):
 # DEPRECATED
 def describe_exit_status(exitstatus, exitcodedescs=None):
     import warnings
-    warnings.warn("Use ExitCode instead of describe_exit_status()", 
+    warnings.warn("Use ExitCode instead of describe_exit_status()",
                   DeprecationWarning)
     desc = []
     if os.WIFSIGNALED(exitstatus):
@@ -101,4 +101,4 @@ describe = describe_exit_status
 if __name__ == "__main__":
     import sys
     for status in sys.argv[1:]:
-        print status, describe_exit_status(int(status)), ExitCode(int(status))
+        print((status, describe_exit_status(int(status)), ExitCode(int(status))))

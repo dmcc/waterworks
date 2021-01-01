@@ -20,13 +20,13 @@ class ThreadedJobs:
 
     def _run(self, func, *args):
         if self.debug:
-            print "Starting", args
+            print("Starting", args)
         func(*args)
         self.finished(args)
 
     def finished(self, args):
         if self.debug:
-            print "Finished with", args
+            print("Finished with", args)
         self.jobsfinished += 1
     
     def getjobstodo(self):
@@ -42,9 +42,9 @@ threadable.synchronize(ThreadedJobs)
 
 if __name__ == "__main__":
     def sleeper(amount, bogusarg):
-        print "sleeping for", amount
+        print("sleeping for", amount)
         time.sleep(amount)
-        print "done sleeping for", amount
+        print("done sleeping for", amount)
 
     times = [(t, 2) for t in range(20)]
     random.shuffle(times)

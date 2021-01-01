@@ -65,9 +65,9 @@ def parseSexpression(expression):
 def multisplit(string_to_split, delimiters):
     """Example:
 
-    >>> print multisplit('hello there, how are you?', delimiters=',')
+    >>> print(multisplit('hello there, how are you?', delimiters=','))
     ['hello there', ' how are you?']
-    >>> print multisplit('hello there, how are you?', delimiters=', ')
+    >>> print(multisplit('hello there, how are you?', delimiters=', '))
     ['hello', 'there', 'how', 'are', 'you?']
     """
     import re

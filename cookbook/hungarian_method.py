@@ -22,8 +22,13 @@
 """Hungarian Method (optimal one-to-one matching)
 
 Not actually from the Python Cookbook.  Origin unknown at this point,
-unfortunately."""
+unfortunately.
 
+https://pypi.org/project/hungarian-algorithm/ might be a better choice
+these days."""
+
+from __future__ import absolute_import
+from __future__ import print_function
 def find_min_in_row(A,i):
 	""" Trova il minimo su una riga 
 	di una matrice la matrice è espressa come lista di liste-righe """
@@ -59,7 +64,7 @@ def substract_const_col(A,i,c):
 
 def there_s_star_in_row(A,i,j,starred):
 	""" i è la riga, j l'elemento di riga da non considerare, starred la lista degli star """
-	lista_temp=range(len(A[i]))
+	lista_temp=list(range(len(A[i])))
 	lista_temp.remove(j)
 	for item in lista_temp:
 		if (i,item) in starred:
@@ -68,7 +73,7 @@ def there_s_star_in_row(A,i,j,starred):
 
 def there_s_star_in_column(A,i,j,starred):
 	""" i è la colonna, j l'elemento di colonna da non considerare, starred la lista degli star """
-	lista_temp=range(len(A))
+	lista_temp=list(range(len(A)))
 	lista_temp.remove(j)
 	for item in lista_temp:
 		if (item,i) in starred:
@@ -77,8 +82,8 @@ def there_s_star_in_column(A,i,j,starred):
 
 def hungarian_method(A):
 	""" Resolve problem of matching and return the list of pairs 'result' """
-	ind_row=range(len(A))
-	ind_col=range(len(A[0]))
+	ind_row=list(range(len(A)))
+	ind_col=list(range(len(A[0])))
 	starred=[]
 	primed=[]
 	cover_col=[]

@@ -1,4 +1,3 @@
-from __future__ import nested_scopes
 import sys
 
 class ondemand(property):
@@ -51,7 +50,7 @@ def make_attributes_from_args(*argnames):
         try:
             setattr(callerself,a,callerlocals[a])
         except KeyError:
-            raise KeyError, "Function has no argument '%s'" % a
+            raise KeyError("Function has no argument '%s'" % a)
 
 def make_dict_from_args(*argnames):
     """
@@ -71,21 +70,21 @@ def make_dict_from_args(*argnames):
         try:
             d[a] = callerlocals[a]
         except KeyError:
-            raise KeyError, "Function has no argument '%s'" % a
+            raise KeyError("Function has no argument '%s'" % a)
     return d
 
 def dumpobj(o, double_underscores=0):
     """Prints all the object's non-callable attributes.  If double_underscores
     is false, it will skip attributes that begin with double underscores."""
-    print repr(o)
+    print(repr(o))
     for a in [x for x in dir(o) if not callable(getattr(o, x))]:
         if not double_underscores and a.startswith("__"):
             continue
         try:
-            print "  %20s: %s " % (a, getattr(o, a))
+            print("  {:>20}: {} ".format(a, getattr(o, a)))
         except:
             pass
-    print ""
+    print("")
 
 _count = 0 # certainly not thread safe
 def trace(func, stream=sys.stdout):
@@ -104,7 +103,7 @@ def trace(func, stream=sys.stdout):
     3
 
     TODO: print out default keywords (maybe)"""
-    name = func.func_name
+    name = func.__name__
     global _count
     def tracer(*args, **kw):
         global _count
@@ -114,10 +113,10 @@ def trace(func, stream=sys.stdout):
             s += ' args: %r' % list(args)
         if kw:
             s += ' kw: %r' % kw
-        print >>stream, s
+        print(s, file=stream)
         ret = func(*args, **kw)
         _count -= 1
-        print >>stream, ('\t' * _count) + '<<| %s returned %s' % (name, ret)
+        print(('\t' * _count) + f'<<| {name} returned {ret}', file=stream)
         return ret
     return tracer
 
@@ -141,7 +140,7 @@ class Symbol:
     def __str__(self):
         return self.name
     def __repr__(self):
-        return "%s(%r)" % (self.__class__, self.name)
+        return f"{self.__class__}({self.name!r})"
     def __eq__(self, other):
         try:
             return self.name == other.name
@@ -168,7 +167,7 @@ def generic_repr(self):
         if item[0] not in skip and not item[0].startswith('_') and \
            (item[1] or item[0] in show_false))
     name = str(self.__class__.__name__).replace('__main__.', '')
-    return "%s(%s)" % (name, d)
+    return f"{name}({d})"
 
 class SimpleKeyEquality:
     """Lets you define a _key() method which will be used for __eq__,
