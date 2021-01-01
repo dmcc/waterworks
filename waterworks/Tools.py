@@ -167,7 +167,7 @@ def generic_repr(self):
         for item in sorted(self.__dict__.items()) 
         if item[0] not in skip and not item[0].startswith('_') and \
            (item[1] or item[0] in show_false))
-    name = str(self.__class__).replace('__main__.', '')
+    name = str(self.__class__.__name__).replace('__main__.', '')
     return "%s(%s)" % (name, d)
 
 class SimpleKeyEquality:
