@@ -40,16 +40,22 @@ def make_cycler():
 
 _color_cycler = make_cycler()
 _colors_defined = {}
-def colorize(text):
+def colorize(text, str_function=str):
     """Returns a colorized version of text.  The same text values will
     be consistently colorized."""
-    text = str(text)
+    colors = get_ansi_color(text, str_function=str_function)
+    return colors + text + ansi.RESET
+
+def get_ansi_color(text, str_function=str):
+    """Returns just the ANSI color code for the text (setting it if it
+    hasn't been set yet)."""
+    text = str_function(text)
     colors = _colors_defined.get(text)
     if not colors:
         names = _color_cycler.next()
         colors = [getattr(ansi, name) for name in names]
         _colors_defined[text] = colors
-    return ''.join(colors) + text + ansi.RESET
+    return ''.join(colors)
 
 def assign_color(text, colors):
     _colors_defined[text] = colors
