@@ -99,8 +99,7 @@ class HistogramBucketDict(collections.UserDict):
     def __init__(self, cutoffs, data=None):
         """Create a HistogramBucketDict with cutoff points for buckets."""
         collections.UserDict.__init__(self)
-        cutoffs = cutoffs[:]
-        cutoffs.reverse()
+        cutoffs = list(reversed(cutoffs))
         self.cutoffs = cutoffs
         self.firstcutoff = cutoffs[0]
         self.lastcutoff = cutoffs[-1]

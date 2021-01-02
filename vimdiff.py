@@ -1,7 +1,7 @@
 """Simple interface for visualizing differences between two strings using
 vimdiff (configurable to use other differs too)"""
 
-from waterworks.Files import keepable_tempfile
+import tempfile
 def vimdiff(*strings, **options):
     """Given a list of strings, visualizes the differences between them
     using vimdiff (or similar program). 
@@ -15,12 +15,13 @@ def vimdiff(*strings, **options):
     assert len(strings) >= 2, "Must have at least two strings."
     file_objs = []
     for i, s in enumerate(strings):
-        tempfile = keepable_tempfile(prefix='%d-' % i)
-        tempfile.write(s)
-        tempfile.flush()
-        file_objs.append(tempfile)
+        vim_tempfile = tempfile.NamedTemporaryFile(mode='w',
+                                                   prefix='%d-' % i)
+        vim_tempfile.write(s)
+        vim_tempfile.flush()
+        file_objs.append(vim_tempfile)
 
-    filenames = [tempfile.name for tempfile in file_objs]
+    filenames = [vim_tempfile.name for vim_tempfile in file_objs]
     command_template = options.get('command_template', 'vimdiff -gf %s')
     command = command_template % ' '.join(filenames)
     import os

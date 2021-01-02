@@ -23,17 +23,17 @@ def bettersystem(command, stdout=None, stderr=None):
 
         if p_out in rlist:
             output = os.read(fd_out, 1024)
-            if output == '':
+            if output == b'':
                 out_finished = True
             else:
-                stdout.write(output)
+                stdout.write(output.decode())
                 stdout.flush()
         if p_err in rlist:
             output = os.read(fd_err, 1024)
-            if output == '':
+            if output == b'':
                 err_finished = True
             else:
-                stderr.write(output)
+                stderr.write(output.decode())
                 stderr.flush()
 
         if out_finished and err_finished and p.poll() != -1:
